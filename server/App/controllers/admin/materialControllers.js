@@ -66,23 +66,35 @@ let materialmultiDelete = async (req, res) => {
     res.send(obj)
 
 }
-let changeStatus = async (req, res) => {
-    let { ids } = req.body;
-
-    let allmaterial = await materialModels.find({ _id: ids }).select('materialStatus')
-
-    for (let items of allmaterial) {
-        await materialModels.updateOne({ _id: items._id }, { $set: { materialStatus: !items.materialStatus } })
-    }
-
-    let obj = {
-        status: 1,
-        mgs: "Status Change",
-
+let changeStatus=async (req,res)=>{
+    let {ids}=req.body;
+   
+    let updateRes=await materialModels.updateMany(
+        {_id:ids},
+        [
+            {
+                $set: {
+                    materialStatus: { $not: "$materialStatus" }
+                }
+            }
+        ]
+    )
+    // let allmateria=await materialModel.find({_id:ids}).select('materialStatus')
+ 
+    // for(let items of allmateria){
+    //     await materialModel.updateOne({_id:items._id},{$set:{ materialStatus:!items.materialStatus }})
+    // }
+ 
+    // console.log(allmateria)
+    let obj={
+        status:1,
+        mgs:"Status Change",
+        updateRes
+       
     }
     res.send(obj)
-
-
+ 
+ 
 }
 
 let updatematerial = async (req, res) => {
