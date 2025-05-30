@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { event } from 'jquery';
 import React, { useEffect, useState } from 'react';
 import { use } from 'react';
 import { FaFilter, FaCircleXmark, FaMagnifyingGlass } from 'react-icons/fa6';
@@ -10,6 +11,7 @@ export default function ViewFaq() {
   let [faqList, setMaterialList] = useState([])
   let [faqData, setFaqData] = useState([]);
   let [showSearch, setShowSearch] = useState(false);
+  let [selectAll, setSelectAll] = useState(false)
 
   let apiBaseUr = import.meta.env.VITE_APIBASEURL;
 
@@ -27,6 +29,17 @@ export default function ViewFaq() {
   useEffect(() => {
     getFaq();
   }, []);
+
+  let handleSelectAll = (event) => {
+    if (event.target.checked) {
+      let allIds = faqData.map((item) => item._id);
+      setIds(allIds);
+    } else {
+      setIds([]);
+    }
+    setSelectAll(event.target.checked);
+  };
+
 
   let getAllCheckedvalue = (event) => {
     if (event.target.checked && !ids.includes(event.target.value)) {
@@ -50,15 +63,29 @@ export default function ViewFaq() {
     console.log(ids)
   }, [ids])
 
-  let changeStatus=()=>{
-       axios.post(`${apiBaseUr}faq/change-status`, { ids })
+  let changeStatus = () => {
+    axios.post(`${apiBaseUr}faq/change-status`, { ids })
       .then((res) => res.data)
       .then((finaLres) => {
         console.log(finaLres)
         getFaq()
         setIds([])
-      }) 
-    }
+      })
+  }
+useEffect(() => {
+        console.log(ids)
+    }, [ids])
+
+    useEffect(() => {
+      if(faqData.length>1){
+        if (faqData.length == ids.length) {
+            setSelectAll(true)
+        }
+        else {
+            setSelectAll(false)
+        }
+      }
+    }, [ids])
 
   return (
     <>
@@ -124,8 +151,12 @@ export default function ViewFaq() {
           <table className='w-full text-sm text-left text-gray-500'>
             <thead className='text-xs h-[40px] text-gray-700 uppercase bg-gray-50'>
               <tr>
-                <th className='lg:w-[3%] sm:w-[7%]'>
-
+                <th className=" py-3">
+                  <input
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    type="checkbox"
+                    className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
                 </th>
                 <th className='lg:w-[20%] sm:w-[33%]'>Question</th>
                 <th className='w-[30%]'>Answer</th>
@@ -140,7 +171,7 @@ export default function ViewFaq() {
                   const { faqQuestion, faqAnswer, faqOrder, faqStatus } = item;
                   return (
                     <tr key={index} className='bg-white border-gray-200 hover:bg-gray-50'>
-                      <td><input onChange={getAllCheckedvalue} checked={ ids.includes(item._id) } type="checkbox" value={item._id} className='w-4 h-4' /></td>
+                      <td><input onChange={getAllCheckedvalue} checked={ids.includes(item._id)} type="checkbox" value={item._id} className='w-4 h-4' /></td>
                       <td className='text-base font-semibold text-black py-2'>{faqQuestion}</td>
                       <td className='text-justify py-2'>{faqAnswer}</td>
                       <td className='text-center py-2'>{faqOrder}</td>
@@ -154,9 +185,9 @@ export default function ViewFaq() {
                       </td>
                       <td>
                         <Link to={`/edit-faq/${item._id}`}>
-                        <button className='flex justify-center items-center text-white bg-blue-500 w-[40px] h-[40px] rounded-full hover:bg-blue-600 focus:outline-none'>
-                          <MdEdit className='text-[18px]' />
-                        </button>
+                          <button className='flex justify-center items-center text-white bg-blue-500 w-[40px] h-[40px] rounded-full hover:bg-blue-600 focus:outline-none'>
+                            <MdEdit className='text-[18px]' />
+                          </button>
                         </Link>
                       </td>
                     </tr>

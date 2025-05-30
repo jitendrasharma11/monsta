@@ -11,6 +11,7 @@ export default function View_Country() {
     const [getCountryData, setgetCountryData] = useState([]);
     const [showSearch, setShowSearch] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    let [selectAll, setSelectAll] = useState(false)
 
     const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
@@ -31,6 +32,15 @@ export default function View_Country() {
     const filteredCountries = getCountryData.filter(item =>
         item.countryName.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    let handleSelectAll = (event) => {
+        if (event.target.checked) {
+            let allIds = getCountryData.map((item) => item._id);
+            setIds(allIds);
+        } else {
+            setIds([]);
+        }
+        setSelectAll(event.target.checked);
+    };
 
     let getAllCheckedvalue = (event) => {
         if (event.target.checked && !ids.includes(event.target.value)) {
@@ -42,9 +52,9 @@ export default function View_Country() {
         }
     }
 
-    let countryDelete=()=>{
-       axios.post(`${apiBaseUrl}country/delete`,{ids})
-       .then((res) => res.data)
+    let countryDelete = () => {
+        axios.post(`${apiBaseUrl}country/delete`, { ids })
+            .then((res) => res.data)
             .then((finaLres) => {
                 console.log(finaLres)
                 getCountry()
@@ -52,19 +62,29 @@ export default function View_Country() {
             })
     }
 
-    useEffect(()=>{
-      console.log(ids)
-     },[ids])
-    
-     let changeStatus=()=>{
-        axios.post(`${apiBaseUrl}country/change-status`,{ids})
-       .then((res) => res.data)
+    useEffect(() => {
+        console.log(ids)
+    }, [ids])
+
+    let changeStatus = () => {
+        axios.post(`${apiBaseUrl}country/change-status`, { ids })
+            .then((res) => res.data)
             .then((finaLres) => {
                 console.log(finaLres)
                 getCountry()
                 setIds([])
             })
     }
+    useEffect(() => {
+              if(getCountryData.length>1){
+                if (getCountryData.length == ids.length) {
+                    setSelectAll(true)
+                }
+                else {
+                    setSelectAll(false)
+                }
+              }
+            }, [ids])
     return (
         <>
             <div className='w-full mx-auto text-md font-medium my-3 text-gray-700'>
@@ -109,7 +129,13 @@ export default function View_Country() {
                     <table className='w-full text-sm text-left text-gray-500'>
                         <thead className='text-xs h-[40px] text-gray-700 uppercase bg-gray-50'>
                             <tr>
-                                <th className='lg:w-[3%] sm:w-[8%]'></th>
+                                <th className=" px-2 ">
+                                    <input
+                                        checked={selectAll}
+                                        onChange={handleSelectAll}
+                                        type="checkbox"
+                                        className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
+                                </th>
                                 <th className='lg:w-[60%] sm:w-[40%]'>Country Name</th>
                                 <th className='w-[15%]'>Order</th>
                                 <th className='lg:w-[15%] sm:w-[18%]'>Status</th>
@@ -123,7 +149,7 @@ export default function View_Country() {
                                         const { countryName, countryOrder, countryStatus } = items;
                                         return (
                                             <tr key={index} className='bg-white hover:bg-gray-50 '>
-                                                <td><input onChange={getAllCheckedvalue} checked={ ids.includes(items._id) } value={items._id} type="checkbox" className='w-4 h-4' /></td>
+                                                <td><input onChange={getAllCheckedvalue} checked={ids.includes(items._id)} value={items._id} type="checkbox" className='w-4 h-4' /></td>
                                                 <td className='text-base font-semibold text-black py-3'>{countryName}</td>
                                                 <td>{countryOrder}</td>
                                                 <td>
@@ -136,9 +162,9 @@ export default function View_Country() {
                                                 </td>
                                                 <td>
                                                     <Link to={`/edit-country/${items._id}`}>
-                                                    <button className='flex justify-center items-center text-white bg-blue-500 w-[40px] h-[40px] rounded-full'>
-                                                        <MdEdit className='text-[18px]' />
-                                                    </button>
+                                                        <button className='flex justify-center items-center text-white bg-blue-500 w-[40px] h-[40px] rounded-full'>
+                                                            <MdEdit className='text-[18px]' />
+                                                        </button>
                                                     </Link>
                                                 </td>
                                             </tr>

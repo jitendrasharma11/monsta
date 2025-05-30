@@ -12,9 +12,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 
-const { categoryInsert } = require("../../controllers/admin/categoryControllers");
+const { categoryInsert, categoryView } = require("../../controllers/admin/categoryControllers");
 let categorylRoutes = express.Router();
 
 categorylRoutes.post('/insert', upload.single('categoryImage'), categoryInsert)
+
+categorylRoutes.get('/view', categoryView)
 
 module.exports = { categorylRoutes }

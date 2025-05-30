@@ -5,9 +5,10 @@ import { MdEdit } from "react-icons/md";
 import { Link } from 'react-router-dom';
 
 export default function ViewColor() {
-    
+
     let [ids, setIds] = useState([]);
     let [getColorData, setGetColorData] = useState([]);
+    let [selectAll, setSelectAll] = useState(false)
     let baseUrl = import.meta.env.VITE_APIBASEURL;
 
     let colorView = () => {
@@ -22,13 +23,15 @@ export default function ViewColor() {
         colorView();
     }, []);
 
-   let handleSelectAll = (e) => {
-        if (e.target.checked) {
-           let allIds = getColorData.map(item => item._id);
+
+    let handleSelectAll = (event) => {
+        if (event.target.checked) {
+            let allIds = getColorData.map((item) => item._id);
             setIds(allIds);
         } else {
             setIds([]);
         }
+        setSelectAll(event.target.checked);
     };
 
 
@@ -54,8 +57,8 @@ export default function ViewColor() {
     useEffect(() => {
         console.log(ids)
     }, [ids])
-    
-    let changeStatus=()=>{
+
+    let changeStatus = () => {
         axios.post(`${baseUrl}color/change-status`, { ids })
             .then((res) => res.data)
             .then((finalRes) => {
@@ -64,6 +67,18 @@ export default function ViewColor() {
                 setIds([]);
             });
     }
+
+    useEffect(() => {
+        if (getColorData.length > 1) {
+            if (getColorData.length == ids.length) {
+                setSelectAll(true)
+            }
+            else {
+                setSelectAll(false)
+            }
+        }
+    }, [ids])
+
     return (
         <>
             <div className='w-full mx-auto text-md font-medium my-3 text-gray-700'>
@@ -99,7 +114,7 @@ export default function ViewColor() {
                                             type="checkbox"
                                             className='w-4 h-4'
                                             onChange={handleSelectAll}
-                                            checked={getColorData.length > 0 && ids.length === getColorData.length}
+                                            checked={selectAll}
                                         />
                                     </div>
                                 </th>
@@ -121,7 +136,7 @@ export default function ViewColor() {
                                                     onChange={getAllCheckedvalue}
                                                     type="checkbox"
                                                     className='w-4 h-4'
-                                                    checked={ ids.includes(value._id)}
+                                                    checked={ids.includes(value._id)}
                                                     value={value._id}
                                                 />
                                             </td>
@@ -137,9 +152,9 @@ export default function ViewColor() {
                                             </td>
                                             <td>
                                                 <Link to={`/edit-color/${value._id}`}>
-                                                <button className='flex justify-center items-center text-white bg-blue-500 w-[40px] h-[40px] rounded-full'>
-                                                    <MdEdit className='text-[18px]' />
-                                                </button>
+                                                    <button className='flex justify-center items-center text-white bg-blue-500 w-[40px] h-[40px] rounded-full'>
+                                                        <MdEdit className='text-[18px]' />
+                                                    </button>
                                                 </Link>
                                             </td>
                                         </tr>

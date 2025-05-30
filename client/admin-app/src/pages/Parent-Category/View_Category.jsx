@@ -1,9 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaFilter, FaPen } from 'react-icons/fa';
+import axios from 'axios';
 
 export default function View_Category() {
     const [activeFilter, setActiveFilter] = useState(true);
+    let [category,setCategory]=useState([]);
+    let [staticPath,setstaticPath]=useState('');
+
+    let apiBaseUrl = import.meta.env.VITE_APIBASEURL;
+    let getCategory = () => {
+        axios.get(`${apiBaseUrl}category/view`)
+            .then((res) => res.data)
+            .then((finalRes) => {
+                setCategory(finalRes.data);
+                setstaticPath(finalRes.staticPath)
+            })
+           
+    };
+
+    useEffect(() => {
+        getCategory()
+    }, [])
 
     return (
         <section className='w-full px-4 py-6'>
@@ -78,22 +96,23 @@ export default function View_Category() {
                             </tr>
                         </thead>
                         <tbody>
-                            {/* Row 1 */}
-                            <tr className="bg-white hover:bg-gray-50">
+                            {category.map((items,index)=>{
+                               return(
+                                <tr className="bg-white hover:bg-gray-50">
                                 <td className="px-4 py-4">
                                     <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
                                 </td>
-                                <td className="px-6 py-4 font-medium text-gray-900">Neil Sims</td>
+                                <td className="px-6 py-4 font-medium text-gray-900">{items.categoryName}</td>
                                 <td className="px-6 py-4">
                                     <img
-                                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1200px-No-Image-Placeholder.svg.png"
+                                          src={staticPath + items.categoryImage}
                                         alt="Category"
                                         className="w-10 h-10 object-cover rounded-full"
                                     />
                                 </td>
-                                <td className="px-6 py-4">1</td>
+                                <td className="px-6 py-4">{items.categoryOrder}</td>
                                 <td className="px-6 py-4">
-                                    <span className="inline-block bg-green-600 text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
+                                    <span className="inline-block bg-[#00A63E] text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
                                         Active
                                     </span>
                                 </td>
@@ -105,34 +124,10 @@ export default function View_Category() {
                                     </div>
                                 </td>
                             </tr>
-
-                            {/* Row 2 */}
-                            <tr className="bg-white hover:bg-gray-50">
-                                <td className="px-4 py-4">
-                                    <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
-                                </td>
-                                <td className="px-6 py-4 font-medium text-gray-900">Neil Sims</td>
-                                <td className="px-6 py-4">
-                                    <img
-                                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1200px-No-Image-Placeholder.svg.png"
-                                        alt="Category"
-                                        className="w-10 h-10 object-cover rounded-full"
-                                    />
-                                </td>
-                                <td className="px-6 py-4">1</td>
-                                <td className="px-6 py-4">
-                                    <span className="inline-block bg-red-600 text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
-                                        Deactive
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="w-[40px] h-[40px] rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center">
-                                        <Link to="/user">
-                                            <FaPen className="text-white" />
-                                        </Link>
-                                    </div>
-                                </td>
-                            </tr>
+                               )
+                            })
+                            }
+                            
                         </tbody>
                     </table>
                 </div>

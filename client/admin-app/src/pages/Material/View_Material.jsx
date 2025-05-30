@@ -7,6 +7,7 @@ export default function View_Material() {
     let [materialList, setMaterialList] = useState([]);
     let [activeFilter, setActiveFilter] = useState(true);
     let [ids, setIds] = useState([]);
+    let [selectAll, setSelectAll] = useState(false)
 
     let apiBaseUrl = import.meta.env.VITE_APIBASEURL; // e.g., http://localhost:8000/admin/
 
@@ -23,6 +24,15 @@ export default function View_Material() {
         getMaterial();
     }, []);
 
+    let handleSelectAll = (event) => {
+        if (event.target.checked) {
+            let allIds = materialList.map((item) => item._id);
+            setIds(allIds);
+        } else {
+            setIds([]);
+        }
+        setSelectAll(event.target.checked);
+    }
 
     let getAllCheckedvalue = (event) => {
 
@@ -42,25 +52,36 @@ export default function View_Material() {
                 console.log(finaLres)
                 getMaterial()
                 setIds([])
-                
+
             })
     }
 
 
-    let changeStatus=()=>{
+    let changeStatus = () => {
         axios.post(`${apiBaseUrl}material/change-status`, { ids })
             .then((res) => res.data)
             .then((finaLres) => {
                 console.log(finaLres)
                 getMaterial()
                 setIds([])
-                
+
             })
     }
 
     useEffect(() => {
         console.log(ids)
     }, [ids])
+
+    useEffect(() => {
+          if(materialList.length>1){
+            if (materialList.length == ids.length) {
+                setSelectAll(true)
+            }
+            else {
+                setSelectAll(false)
+            }
+          }
+        }, [ids])
 
     return (
         <section className="w-full px-4 py-6">
@@ -79,7 +100,7 @@ export default function View_Material() {
                         <button onClick={changeStatus} className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">
                             Change Status
                         </button>
-                        <button onClick={deleteMaterial}  className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                        <button onClick={deleteMaterial} className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">
                             Delete
                         </button>
                     </div>
@@ -124,7 +145,11 @@ export default function View_Material() {
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-t">
                             <tr>
                                 <th className="px-4 py-3">
-                                    <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
+                                    <input
+                                        checked={selectAll}
+                                        onChange={handleSelectAll}
+                                        type="checkbox"
+                                        className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
                                 </th>
                                 <th className="px-6 py-3 font-semibold">Material Name</th>
                                 <th className="px-6 py-3 font-semibold">Order</th>
@@ -138,7 +163,7 @@ export default function View_Material() {
                                     materialList.map((item, index) => (
                                         <tr key={item._id || index} className="bg-white hover:bg-gray-50">
                                             <td className="px-4 py-4">
-                                                <input onChange={getAllCheckedvalue} checked={ ids.includes(item._id) } type="checkbox" value={item._id} className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
+                                                <input onChange={getAllCheckedvalue} checked={ids.includes(item._id)} type="checkbox" value={item._id} className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
                                             </td>
                                             <td className="px-6 py-4 font-medium text-gray-900">{item.materialName}</td>
                                             <td className="px-6 py-4">{item.materialOrder}</td>
@@ -148,18 +173,18 @@ export default function View_Material() {
                                                         Active
                                                     </button>
                                                 ) : (
-                                                    <button  className="inline-block bg-red-600 text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
+                                                    <button className="inline-block bg-red-600 text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
                                                         Deactivated
                                                     </button>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <Link to={`/edit-material/${item._id}`}>
-                                                <div className="w-[40px] h-[40px] rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center">
+                                                    <div className="w-[40px] h-[40px] rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center">
 
-                                                    <FaPen className="text-white" />
+                                                        <FaPen className="text-white" />
 
-                                                </div>
+                                                    </div>
                                                 </Link>
                                             </td>
                                         </tr>
