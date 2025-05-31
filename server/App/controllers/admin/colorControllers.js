@@ -29,7 +29,14 @@ let colorInsert = async (req, res) => {
     }
 }
 let colorView = async (req, res) => {
-    let data = await colorModel.find()
+    let searchObj = {
+
+    } 
+    if (req.query.colorName != '') {
+        searchObj['colorName']=new RegExp(req.query.colorName,"i")
+        
+    }
+    let data = await colorModel.find(searchObj)
     let obj = {
         status: 1,
         msg: "View Color",

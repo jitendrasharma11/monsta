@@ -25,7 +25,7 @@ export default function Add_Category() {
         });
     }, []);
 
-    let SaveCategory = (e) => {
+    let saveCategory = (e) => {
         e.preventDefault();
         let formValue = new FormData(e.target);
 
@@ -80,7 +80,7 @@ export default function Add_Category() {
                 <div className='w-full min-h-[620px]'>
                     <div className='max-w-[1220px] mx-auto py-5'>
                         <h3 className='text-[26px] p-2 border rounded-t-md font-semibold border-slate-400 bg-gray-200'>Add Category</h3>
-                        <form onSubmit={SaveCategory} className='py-3 px-2 border border-t-0 rounded-b-md border-slate-400' autoComplete='off'>
+                        <form onSubmit={saveCategory} className='py-3 px-2 border border-t-0 rounded-b-md border-slate-400' autoComplete='off'>
                             <div className='flex gap-5'>
                                 <div className='w-[30%]'>
                                     <label className="mb-1 font-medium block">Category Image</label>

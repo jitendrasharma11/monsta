@@ -37,7 +37,14 @@ let countryAdd = async (req, res) => {
 }
 
 let countryView = async (req, res) => {
-    let data = await countryModel.find()
+    let searchObj = {
+
+    } 
+    if (req.query.countryName != '') {
+        searchObj['countryName']=new RegExp(req.query.countryName,"i")
+        
+    }
+    let data = await countryModel.find(searchObj)
 
     let obj = {
         status: 1,

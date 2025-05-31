@@ -3,7 +3,7 @@ const faqModels = require("../../models/faqModels")
 let faqAdd = async (req, res) => {
     let { faqQuestion, faqAnswer, faqOrder } = req.body
 
-    
+
     let obj
     try {
         let faqInsert = {
@@ -12,7 +12,7 @@ let faqAdd = async (req, res) => {
             faqOrder,
             faqStatus: true
         }
-       
+
 
         let data = await faqModels.insertOne(faqInsert)
 
@@ -31,19 +31,68 @@ let faqAdd = async (req, res) => {
         }
         res.send(obj)
     }
+    
 }
 
-
 let faqView = async (req, res) => {
-    let data = await faqModels.find()
+    let searchObj = {
 
+    }
+    if (req.query.faqQuestion != '') {
+        searchObj.faqQuestion= new RegExp(req.query.faqQuestion, "i");
+        
+    }
+   
+
+    let data = await faqModels.find(searchObj)
     let obj = {
         status: 1,
-        msg: "faqs Viewd",
+        mgs: "Faq View",
         data
     }
     res.send(obj)
 }
+
+// let faqView = async (req, res) => {
+
+//     console.log(req.query.faqQuestion)
+//     let isNumber =! isNaN(Number(req.query.faqQuestion))
+
+//     let searchObj={}
+
+//     // if (req.query.faqQuestion != '') {
+//     //    searchObj.faqQuestion= new RegExp(req.query.faqQuestion, "i");
+//     // }
+//    if (req.query.faqOrder != '') {
+//        searchObj.faqOrder=req.query.faqQuestion;
+//     }
+//     else{
+//          searchObj.faqOrder={}
+//     }
+//     // let searchObj = {
+
+//     // }
+//     // if (req.query.faqQuestion != '') {
+//     //     searchObj['faqQuestion'] = new RegExp(req.query.faqQuestion, "i");
+//     // }
+
+//     // if (req.query.faqAnswer != '') {
+//     //     searchObj['faqAnswer'] = new RegExp(req.query.faqAnswer, "i");
+//     // }
+//     // if (req.query.faqOrder != '') {
+//     //     searchObj['faqOrder'] = new RegExp(req.query.faqAnswer, "i");
+//     // }
+
+//     let data = await faqModels.find(searchObj)
+
+//     let obj = {
+//         status: 1,
+//         msg: "faqs Viewd",
+//         data
+//     }
+//     res.send(obj)
+  
+// }
 
 let faqSingleView = async (req, res) => {
     let { id } = req.params
@@ -85,7 +134,7 @@ let changeStatus = async (req, res) => {
     let { ids } = req.body;
 
     let allfaq = await faqModels.find({ _id: ids }).select('faqStatus')
-     
+
     for (let items of allfaq) {
         await faqModels.updateOne({ _id: items._id }, { $set: { faqStatus: !items.faqStatus } })
     }

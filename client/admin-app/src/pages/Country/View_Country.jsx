@@ -2,39 +2,52 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaFilter, FaTimes } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 export default function View_Country() {
 
-    let [ids, setIds] = useState([]);
-    let [countryList, setCountryList] = useState([])
-    const [getCountryData, setgetCountryData] = useState([]);
+    const [ids, setIds] = useState([]);
+    const [countryName, setCountryName] = useState('');   // API filter param
+    const [getCountryData, setGetCountryData] = useState([]);
     const [showSearch, setShowSearch] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    let [selectAll, setSelectAll] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('');     // Client-side filter
+    const [selectAll, setSelectAll] = useState(false);
 
     const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
+    // Fetch data from API with filter param
     const getCountry = () => {
-        axios.get(`${apiBaseUrl}country/view`)
-            .then((res) => res.data)
-            .then((finalRes) => {
-                setgetCountryData(finalRes.data);
-            });
+        axios.get(`${apiBaseUrl}country/view`, {
+            params: { countryName }
+        })
+            .then(res => res.data)
+            .then(finalRes => {
+                setGetCountryData(finalRes.data);
+            })
+            .catch(err => console.error("Fetch Country Error:", err));
     };
 
+    // Call API whenever countryName changes (server side search)
     useEffect(() => {
         getCountry();
-    }, []);
+    }, [countryName]);
 
-    const toggleSearch = () => setShowSearch(prev => !prev);
+    // Toggle search input visibility
+    const toggleSearch = () => {
+        setShowSearch(prev => !prev);
+        setSearchTerm('');  // Reset client-side filter on toggle
+        setCountryName(''); // Reset API filter on toggle (optional)
+    };
 
+    // Filter data client side based on searchTerm
     const filteredCountries = getCountryData.filter(item =>
         item.countryName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    let handleSelectAll = (event) => {
+
+    // Select all checkbox handler
+    const handleSelectAll = (event) => {
         if (event.target.checked) {
-            let allIds = getCountryData.map((item) => item._id);
+            const allIds = getCountryData.map(item => item._id);
             setIds(allIds);
         } else {
             setIds([]);
@@ -42,49 +55,45 @@ export default function View_Country() {
         setSelectAll(event.target.checked);
     };
 
-    let getAllCheckedvalue = (event) => {
-        if (event.target.checked && !ids.includes(event.target.value)) {
-            setIds([...ids, event.target.value])
+    // Single checkbox handler
+    const getAllCheckedvalue = (event) => {
+        const value = event.target.value;
+        if (event.target.checked && !ids.includes(value)) {
+            setIds([...ids, value]);
+        } else {
+            setIds(ids.filter(id => id !== value));
         }
-        else {
-            // let filnalArray=ids.filter((v)=>v!=event.target.value)
-            setIds(ids.filter((v) => v != event.target.value))
-        }
-    }
+    };
 
-    let countryDelete = () => {
+    // Delete selected countries
+    const countryDelete = () => {
         axios.post(`${apiBaseUrl}country/delete`, { ids })
-            .then((res) => res.data)
-            .then((finaLres) => {
-                console.log(finaLres)
-                getCountry()
-                setIds([])
+            .then(res => res.data)
+            .then(() => {
+                getCountry();
+                setIds([]);
             })
-    }
+            .catch(err => console.error("Delete Error:", err));
+    };
 
-    useEffect(() => {
-        console.log(ids)
-    }, [ids])
-
-    let changeStatus = () => {
+    // Change status for selected countries
+    const changeStatus = () => {
         axios.post(`${apiBaseUrl}country/change-status`, { ids })
-            .then((res) => res.data)
-            .then((finaLres) => {
-                console.log(finaLres)
-                getCountry()
-                setIds([])
+            .then(res => res.data)
+            .then(() => {
+                getCountry();
+                setIds([]);
             })
-    }
+            .catch(err => console.error("Change Status Error:", err));
+    };
+
+    // Sync selectAll if all individual checkboxes are selected
     useEffect(() => {
-              if(getCountryData.length>1){
-                if (getCountryData.length == ids.length) {
-                    setSelectAll(true)
-                }
-                else {
-                    setSelectAll(false)
-                }
-              }
-            }, [ids])
+        if (getCountryData.length > 0) {
+            setSelectAll(getCountryData.length === ids.length);
+        }
+    }, [ids, getCountryData]);
+
     return (
         <>
             <div className='w-full mx-auto text-md font-medium my-3 text-gray-700'>
@@ -107,9 +116,8 @@ export default function View_Country() {
                         <button onClick={countryDelete} className='bg-red-700 rounded-sm py-2.5 px-5 font-semibold text-sm text-white'>Delete</button>
                     </div>
                 </div>
-
                 {showSearch && (
-                    <div className='p-4 flex items-center gap-2'>
+                    <form onSubmit={(e) => e.preventDefault()} className='p-4 flex items-center gap-2'>
                         <input
                             type='text'
                             placeholder='Search Name'
@@ -117,12 +125,16 @@ export default function View_Country() {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                        <button className='bg-blue-600 p-2 rounded-md text-white'>
+                        <button
+                            type="submit"
+                            className='bg-blue-600 p-2 rounded-md text-white'
+                            onClick={getCountry}
+                        >
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M21.707 20.293l-5.387-5.387A7.935 7.935 0 0016 9a8 8 0 10-8 8 7.935 7.935 0 005.906-2.68l5.387 5.387a1 1 0 001.414-1.414zM4 9a5 5 0 1110 0A5 5 0 014 9z" />
                             </svg>
                         </button>
-                    </div>
+                    </form>
                 )}
 
                 <div className='form px-4'>
@@ -134,7 +146,8 @@ export default function View_Country() {
                                         checked={selectAll}
                                         onChange={handleSelectAll}
                                         type="checkbox"
-                                        className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
+                                        className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
+                                    />
                                 </th>
                                 <th className='lg:w-[60%] sm:w-[40%]'>Country Name</th>
                                 <th className='w-[15%]'>Order</th>
@@ -144,12 +157,20 @@ export default function View_Country() {
                         </thead>
                         <tbody>
                             {
-                                filteredCountries.length > 0 ?
-                                    filteredCountries.map((items, index) => {
+                                filteredCountries.length > 0
+                                    ? filteredCountries.map((items, index) => {
                                         const { countryName, countryOrder, countryStatus } = items;
                                         return (
-                                            <tr key={index} className='bg-white hover:bg-gray-50 '>
-                                                <td><input onChange={getAllCheckedvalue} checked={ids.includes(items._id)} value={items._id} type="checkbox" className='w-4 h-4' /></td>
+                                            <tr key={items._id || index} className='bg-white hover:bg-gray-50 '>
+                                                <td>
+                                                    <input
+                                                        onChange={getAllCheckedvalue}
+                                                        checked={ids.includes(items._id)}
+                                                        value={items._id}
+                                                        type="checkbox"
+                                                        className='w-4 h-4'
+                                                    />
+                                                </td>
                                                 <td className='text-base font-semibold text-black py-3'>{countryName}</td>
                                                 <td>{countryOrder}</td>
                                                 <td>
@@ -157,7 +178,7 @@ export default function View_Country() {
                                                         ${countryStatus
                                                             ? 'bg-gradient-to-r from-green-400 via-green-500 to-green-600'
                                                             : 'bg-gradient-to-r from-red-400 via-red-500 to-red-600'}`}>
-                                                        {countryStatus ? 'Active' : 'Dactive'}
+                                                        {countryStatus ? 'Active' : 'Inactive'}
                                                     </button>
                                                 </td>
                                                 <td>

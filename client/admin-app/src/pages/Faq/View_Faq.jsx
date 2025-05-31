@@ -8,27 +8,33 @@ import { Link } from 'react-router-dom';
 
 export default function ViewFaq() {
   let [ids, setIds] = useState([]);
-  let [faqList, setMaterialList] = useState([])
+  let [faqQuestion, setFaqQuestion] = useState('');
   let [faqData, setFaqData] = useState([]);
   let [showSearch, setShowSearch] = useState(false);
   let [selectAll, setSelectAll] = useState(false)
 
+
   let apiBaseUr = import.meta.env.VITE_APIBASEURL;
 
   let getFaq = () => {
-    axios.get(`${apiBaseUr}faq/view`)
-      .then(res => res.data)
-      .then(finalRes => {
-        setFaqData(finalRes.data);
-      })
-      .catch(err => {
-        console.error("Error fetching FAQ data:", err);
-      });
-  };
+  axios.get(`${apiBaseUr}faq/view`, {
+    params: {
+      faqQuestion,
+      
+    }
+  })
+    .then(res => res.data)
+    .then(finalRes => {
+      setFaqData(finalRes.data);
+    })
+    .catch(err => {
+      console.error("Error fetching FAQ data:", err);
+    });
+};
 
   useEffect(() => {
     getFaq();
-  }, []);
+  }, [faqQuestion]);
 
   let handleSelectAll = (event) => {
     if (event.target.checked) {
@@ -105,6 +111,7 @@ useEffect(() => {
             <div className="relative w-full">
               <label htmlFor="search" className="sr-only">Search Name</label>
               <input
+                onChange={(e) => setFaqQuestion(e.target.value)}
                 type="text"
                 id="search"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg block w-full p-2.5"

@@ -34,7 +34,19 @@ let materialInsert = async (req, res) => {
 }
 
 let materialView = async (req, res) => {
-    let data = await materialModels.find()
+    let searchObj = {
+
+    }
+    if (req.query.materialName != '') {
+        searchObj['materialName']=new RegExp(req.query.materialName,"i")
+        // searchObj['materialName'] = { $regex: req.query.materialName, $options: "i" };
+    }
+    // if (req.query.materialOrder != '') {
+    //     searchObj['materialOrder']=new RegExp(req.query.materialOrder,"i")
+    //     // searchObj['materialName'] = { $regex: req.query.materialName, $options: "i" };
+    // }
+
+    let data = await materialModels.find(searchObj)
     let obj = {
         status: 1,
         mgs: "material View",
@@ -66,11 +78,11 @@ let materialmultiDelete = async (req, res) => {
     res.send(obj)
 
 }
-let changeStatus=async (req,res)=>{
-    let {ids}=req.body;
-   
-    let updateRes=await materialModels.updateMany(
-        {_id:ids},
+let changeStatus = async (req, res) => {
+    let { ids } = req.body;
+
+    let updateRes = await materialModels.updateMany(
+        { _id: ids },
         [
             {
                 $set: {
@@ -80,21 +92,21 @@ let changeStatus=async (req,res)=>{
         ]
     )
     // let allmateria=await materialModel.find({_id:ids}).select('materialStatus')
- 
+
     // for(let items of allmateria){
     //     await materialModel.updateOne({_id:items._id},{$set:{ materialStatus:!items.materialStatus }})
     // }
- 
+
     // console.log(allmateria)
-    let obj={
-        status:1,
-        mgs:"Status Change",
+    let obj = {
+        status: 1,
+        mgs: "Status Change",
         updateRes
-       
+
     }
     res.send(obj)
- 
- 
+
+
 }
 
 let updatematerial = async (req, res) => {

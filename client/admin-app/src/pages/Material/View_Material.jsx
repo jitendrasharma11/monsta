@@ -7,12 +7,18 @@ export default function View_Material() {
     let [materialList, setMaterialList] = useState([]);
     let [activeFilter, setActiveFilter] = useState(true);
     let [ids, setIds] = useState([]);
-    let [selectAll, setSelectAll] = useState(false)
+    let [selectAll, setSelectAll] = useState(false);
+    let [materialName, setMaterialName] = useState();
 
     let apiBaseUrl = import.meta.env.VITE_APIBASEURL; // e.g., http://localhost:8000/admin/
 
     let getMaterial = () => {
-        axios.get(`${apiBaseUrl}material/view`)
+        axios.get(`${apiBaseUrl}material/view`, {
+            params: {
+                materialName
+            }
+        })
+
             .then((res) => res.data)
             .then((finalRes) => {
                 setMaterialList(finalRes.data);
@@ -22,7 +28,7 @@ export default function View_Material() {
 
     useEffect(() => {
         getMaterial();
-    }, []);
+    }, [materialName]);
 
     let handleSelectAll = (event) => {
         if (event.target.checked) {
@@ -73,15 +79,15 @@ export default function View_Material() {
     }, [ids])
 
     useEffect(() => {
-          if(materialList.length>1){
+        if (materialList.length > 1) {
             if (materialList.length == ids.length) {
                 setSelectAll(true)
             }
             else {
                 setSelectAll(false)
             }
-          }
-        }, [ids])
+        }
+    }, [ids])
 
     return (
         <section className="w-full px-4 py-6">
@@ -109,10 +115,11 @@ export default function View_Material() {
                 {/* Filter/Search Section */}
                 {!activeFilter && (
                     <div className="px-6 py-4 border-b bg-white">
-                        <form className="flex max-w-sm">
+                        <form onSubmit={e => e.preventDefault()} className="flex max-w-sm">
                             <div className="relative w-full">
                                 <label htmlFor="search" className="sr-only">Search Name</label>
                                 <input
+                                    onChange={(e)=>setMaterialName(e.target.value)}
                                     type="text"
                                     id="search"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
@@ -121,6 +128,7 @@ export default function View_Material() {
                                 />
                             </div>
                             <button
+                                onClick={getMaterial}
                                 type="submit"
                                 className="ml-2 p-2.5 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:outline-none"
                             >
