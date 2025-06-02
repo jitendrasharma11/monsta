@@ -6,7 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 export default function Add_Material() {
 
     let { id } = useParams()
-    console.log(id)
+   
 
     let navigate = useNavigate()
 

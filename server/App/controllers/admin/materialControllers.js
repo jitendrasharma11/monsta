@@ -42,8 +42,8 @@ let materialView = async (req, res) => {
         // searchObj['materialName'] = { $regex: req.query.materialName, $options: "i" };
     }
     // if (req.query.materialOrder != '') {
-    //     searchObj['materialOrder']=new RegExp(req.query.materialOrder,"i")
-    //     // searchObj['materialName'] = { $regex: req.query.materialName, $options: "i" };
+    //     searchObj['materialOrder']= Number(req.query.materialOrder)
+         
     // }
 
     let data = await materialModels.find(searchObj)

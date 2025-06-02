@@ -5,23 +5,72 @@ import axios from 'axios';
 
 export default function View_Category() {
     const [activeFilter, setActiveFilter] = useState(true);
-    let [category,setCategory]=useState([]);
-    let [staticPath,setstaticPath]=useState('');
+    const [category, setCategory] = useState([]);
+    const [staticPath, setStaticPath] = useState('');
+    const [ids, setIds] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
 
-    let apiBaseUrl = import.meta.env.VITE_APIBASEURL;
-    let getCategory = () => {
+    const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
+
+    const getCategory = () => {
         axios.get(`${apiBaseUrl}category/view`)
             .then((res) => res.data)
             .then((finalRes) => {
                 setCategory(finalRes.data);
-                setstaticPath(finalRes.staticPath)
-            })
-           
+                setStaticPath(finalRes.staticPath);
+            });
     };
 
     useEffect(() => {
-        getCategory()
-    }, [])
+        getCategory();
+    }, []);
+
+    const getAllCheckedvalue = (event) => {
+        const value = event.target.value;
+        if (event.target.checked && !ids.includes(value)) {
+            setIds([...ids, value]);
+        } else {
+            setIds(ids.filter((v) => v !== value));
+        }
+    };
+
+    const handleSelectAll = (event) => {
+        if (event.target.checked) {
+            const allIds = category.map(item => item._id);
+            setIds(allIds);
+        } else {
+            setIds([]);
+        }
+        setSelectAll(event.target.checked);
+    };
+
+    useEffect(() => {
+        if (category.length > 0) {
+            setSelectAll(ids.length === category.length);
+        }
+    }, [ids]);
+
+    const deleteMultipleCategories = () => {
+        axios.post(`${apiBaseUrl}category/delete`, { ids })
+            .then(res => res.data)
+            .then(finalRes => {
+                console.log(finalRes);
+                getCategory();
+                setIds([]);
+            })
+            .catch(err => console.error(err));
+    };
+
+    const changeCategoryStatus = () => {
+        axios.post(`${apiBaseUrl}category/change-status`, { ids })
+            .then(res => res.data)
+            .then(finalRes => {
+                console.log(finalRes);
+                getCategory();
+                setIds([]);
+            })
+            .catch(err => console.error(err));
+    };
 
     return (
         <section className='w-full px-4 py-6'>
@@ -29,23 +78,17 @@ export default function View_Category() {
             {/* Filter Section */}
             {!activeFilter && (
                 <div className="mb-6 p-4 bg-white border rounded-lg shadow-sm max-w-xl">
-                    <form className="flex">
+                    <form className="flex" onSubmit={(e) => e.preventDefault()}>
                         <input
                             type="text"
                             className="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg p-2.5"
                             placeholder="Search Name"
-                            required
                         />
                         <button
                             type="submit"
                             className="p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg hover:bg-blue-800"
                         >
-                            <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 20 20">
                                 <path
                                     stroke="currentColor"
                                     strokeLinecap="round"
@@ -71,10 +114,16 @@ export default function View_Category() {
                         >
                             <FaFilter />
                         </button>
-                        <button className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                        <button
+                            onClick={changeCategoryStatus}
+                            className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                        >
                             Change Status
                         </button>
-                        <button className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                        <button
+                            onClick={deleteMultipleCategories}
+                            className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                        >
                             Delete
                         </button>
                     </div>
@@ -86,7 +135,12 @@ export default function View_Category() {
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-t">
                             <tr>
                                 <th className="px-4 py-3">
-                                    <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
+                                        checked={selectAll}
+                                        onChange={handleSelectAll}
+                                    />
                                 </th>
                                 <th className="px-6 py-3 font-semibold">Name</th>
                                 <th className="px-6 py-3 font-semibold">Image</th>
@@ -96,38 +150,51 @@ export default function View_Category() {
                             </tr>
                         </thead>
                         <tbody>
-                            {category.map((items,index)=>{
-                               return(
-                                <tr className="bg-white hover:bg-gray-50">
-                                <td className="px-4 py-4">
-                                    <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
-                                </td>
-                                <td className="px-6 py-4 font-medium text-gray-900">{items.categoryName}</td>
-                                <td className="px-6 py-4">
-                                    <img
-                                          src={staticPath + items.categoryImage}
-                                        alt="Category"
-                                        className="w-10 h-10 object-cover rounded-full"
-                                    />
-                                </td>
-                                <td className="px-6 py-4">{items.categoryOrder}</td>
-                                <td className="px-6 py-4">
-                                    <span className="inline-block bg-[#00A63E] text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
-                                        Active
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="w-[40px] h-[40px] rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center">
-                                        <Link to="/user">
-                                            <FaPen className="text-white" />
-                                        </Link>
-                                    </div>
-                                </td>
-                            </tr>
-                               )
-                            })
-                            }
-                            
+                            {category.length > 0 ? (
+                                category.map((items, index) => (
+                                    <tr key={index} className="bg-white hover:bg-gray-50">
+                                        <td className="px-4 py-4">
+                                            <input
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
+                                                value={items._id}
+                                                checked={ids.includes(items._id)}
+                                                onChange={getAllCheckedvalue}
+                                            />
+                                        </td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">{items.categoryName}</td>
+                                        <td className="px-6 py-4">
+                                            <img
+                                                src={staticPath + items.categoryImage}
+                                                alt="Category"
+                                                className="w-10 h-10 object-cover rounded-full"
+                                            />
+                                        </td>
+                                        <td className="px-6 py-4">{items.categoryOrder}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-block text-white text-sm font-semibold px-5 py-1.5 rounded-lg ${items.categoryStatus
+                                                ? 'bg-green-600'
+                                                : 'bg-red-600'
+                                                }`}>
+                                                {items.categoryStatus ? 'Active' : 'Deactive'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <Link to={`/edit-category/${items._id}`}>
+                                                <div className="w-[40px] h-[40px] rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center">
+                                                    <FaPen className="text-white" />
+                                                </div>
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={6} className="text-center py-4 text-gray-700 font-semibold">
+                                        No Data Found
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

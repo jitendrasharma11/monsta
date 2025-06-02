@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import $ from 'jquery';
 import 'dropify/dist/js/dropify.min.js';
 import 'dropify/dist/css/dropify.min.css';
@@ -8,48 +8,70 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function Add_Category() {
-    const apiBaseUrl = import.meta.env.VITE_APIBASEURL; // e.g., http://localhost:8000/admin/
+    const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
     const navigate = useNavigate();
+    const { id } = useParams();
+
+    const [formValue, setFormValue] = useState({
+        categoryName: '',
+        categoryOrder: '',
+        oldImage: ''
+    });
 
     useEffect(() => {
-        $(".dropify").dropify({
-            messages: {
-                default: "Drag and drop",
-                error: "Ooops, something went wrong."
-            },
-            tpl: {
-                loader: '<div class="dropify-loader"></div>',
-                errorLine: '<p class="dropify-error">{{ error }}</p>',
-                message: `<div class="dropify-message"><span class="file-icon" /> <p class="text-[25px]">{{ default }}</p></div>`,
-            },
-        });
-    }, []);
-
-    let saveCategory = (e) => {
-        e.preventDefault();
-        let formValue = new FormData(e.target);
-
-        axios.post(`${apiBaseUrl}category/insert`, formValue)
-            .then((finalRes) => {
-                const res = finalRes.data;
-
-                if (res.status) {
-                    toast.success(res.msg || "Category added successfully");
-                    e.target.reset();
-                    $(".dropify").data("dropify").clearElement();
+        if (id) {
+            axios.get(`${apiBaseUrl}category/edit-row-data/${id}`)
+                .then(res => res.data)
+                .then(finalRes => {
+                    const data = finalRes.data;
+                    setFormValue({
+                        categoryName: data.categoryName,
+                        categoryOrder: data.categoryOrder,
+                        oldImage: data.categoryImage // assuming this is the image path
+                    });
 
                     setTimeout(() => {
-                        navigate("/view-category");
-                    }, 2000);
+                        $('.dropify').dropify({
+                            defaultFile: `${apiBaseUrl}${data.categoryImage}`
+                        });
+                    }, 200);
+                });
+        } else {
+            setTimeout(() => {
+                $('.dropify').dropify();
+            }, 200);
+        }
+    }, [id]);
 
-                } else {
-                    toast.error(res.msg || "Something went wrong");
-                }
-            })
-            
-            .catch(() => {
-                toast.error("Network error or server not responding");
-            });
+    const saveCategory = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        if (id) {
+            formData.append("oldImage", formValue.oldImage);
+            axios.put(`${apiBaseUrl}category/update/${id}`, formData)
+                .then(res => res.data)
+                .then(finalRes => {
+                    if (finalRes.status) {
+                        toast.success(finalRes.msg || "Category updated successfully");
+                        setTimeout(() => navigate("/view-category"), 2000);
+                    } else {
+                        toast.error(finalRes.msg || "Something went wrong");
+                    }
+                });
+        } else {
+            axios.post(`${apiBaseUrl}category/insert`, formData)
+                .then(res => res.data)
+                .then(finalRes => {
+                    if (finalRes.status) {
+                        toast.success(finalRes.msg || "Category added successfully");
+                        e.target.reset();
+                        $('.dropify').data('dropify').clearElement();
+                        setTimeout(() => navigate("/view-category"), 2000);
+                    } else {
+                        toast.error(finalRes.msg || "Something went wrong");
+                    }
+                });
+        }
     };
 
     return (
@@ -60,36 +82,35 @@ export default function Add_Category() {
                 <div className='py-3'>
                     <nav className='mt-1'>
                         <ul className='flex items-center'>
-                            <li>
-                                <Link to="/dashboard">
-                                    <span className='font-bold text-gray-800'>Home</span>
-                                </Link>
-                            </li>&nbsp;
-                            <li>
-                                <Link to="/user">
-                                    <span className='font-bold text-gray-800'>/&nbsp;Category</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <span className='font-bold text-gray-800'>/&nbsp;Add</span>
-                            </li>
+                            <li><Link to="/dashboard"><span className='font-bold text-gray-800'>Home</span></Link></li>&nbsp;
+                            <li><Link to="/view-category"><span className='font-bold text-gray-800'>/&nbsp;Category</span></Link></li>
+                            <li><span className='font-bold text-gray-800'>/&nbsp;{id ? 'Edit' : 'Add'}</span></li>
                         </ul>
                     </nav>
                 </div>
                 <div className='border-b-2 text-gray-300'></div>
                 <div className='w-full min-h-[620px]'>
                     <div className='max-w-[1220px] mx-auto py-5'>
-                        <h3 className='text-[26px] p-2 border rounded-t-md font-semibold border-slate-400 bg-gray-200'>Add Category</h3>
+                        <h3 className='text-[26px] p-2 border rounded-t-md font-semibold border-slate-400 bg-gray-200'>{id ? "Edit" : "Add"} Category</h3>
                         <form onSubmit={saveCategory} className='py-3 px-2 border border-t-0 rounded-b-md border-slate-400' autoComplete='off'>
                             <div className='flex gap-5'>
                                 <div className='w-[30%]'>
                                     <label className="mb-1 font-medium block">Category Image</label>
-                                    <input
-                                        type="file"
-                                        className="dropify text-[15px]"
-                                        data-height="250"
-                                        name="categoryImage"
-                                    />
+                                    <>
+                                        <style>{`
+    .dropify-wrapper .dropify-message span {
+      font-weight: normal !important;
+      font-size: 20px !important;
+    }
+  `}</style>
+
+                                        <input
+                                            type="file"
+                                            className="dropify"
+                                            data-height="250"
+                                            name="categoryImage"
+                                        />
+                                    </>
                                 </div>
                                 <div className='w-[62%]'>
                                     <div className='mb-5 p-1'>
@@ -97,7 +118,8 @@ export default function Add_Category() {
                                         <input
                                             type="text"
                                             name="categoryName"
-                                            id="cname"
+                                            value={formValue.categoryName}
+                                            onChange={(e) => setFormValue({ ...formValue, categoryName: e.target.value })}
                                             className='text-[20px] border-2 py-2.5 px-2 block shadow-md border-gray-400 w-full rounded-lg focus:border-blue-500'
                                             placeholder="Category Name"
                                         />
@@ -107,7 +129,8 @@ export default function Add_Category() {
                                         <input
                                             type="number"
                                             name="categoryOrder"
-                                            id="corder"
+                                            value={formValue.categoryOrder}
+                                            onChange={(e) => setFormValue({ ...formValue, categoryOrder: e.target.value })}
                                             className='text-[20px] border-2 py-2.5 px-2 block shadow-md border-gray-400 w-full rounded-lg focus:border-blue-500'
                                             placeholder="Order"
                                         />
@@ -118,7 +141,7 @@ export default function Add_Category() {
                                 type="submit"
                                 className='text-white bg-purple-500 hover:bg-purple-700 font-medium rounded-lg py-3 px-2 my-3 mx-1.5'
                             >
-                                Add Category
+                                {id ? "Update" : "Add"} Category
                             </button>
                         </form>
                     </div>
@@ -127,5 +150,3 @@ export default function Add_Category() {
         </div>
     );
 }
-
-export { Add_Category };

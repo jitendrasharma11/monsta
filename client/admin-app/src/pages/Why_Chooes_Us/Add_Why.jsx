@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import $ from 'jquery';
 import 'dropify/dist/js/dropify.min.js';
 import 'dropify/dist/css/dropify.min.css';
@@ -8,8 +8,12 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function Add_Why() {
-  const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
+  let apiBaseUrl = import.meta.env.VITE_APIBASEURL;
   const navigate = useNavigate();
+
+  let { id } = useParams()
+    console.log(id)
+
 
   useEffect(() => {
     $('.dropify').dropify({
@@ -24,6 +28,7 @@ export default function Add_Why() {
       },
     });
   }, []);
+  
 
   const saveWhyChoose = (e) => {
     e.preventDefault();

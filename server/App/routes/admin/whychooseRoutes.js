@@ -1,22 +1,31 @@
-let express = require("express");
-const multer = require('multer');
+const express = require("express");
+const multer = require("multer");
+const { 
+    whychooseInsert, 
+    whychooseView, 
+    whychoosemultiDelete, 
+    whychooseStatus 
+} = require("../../controllers/admin/whychooseControllers");
+
+
+const whychooseRoutes = express.Router();
+
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        return cb(null, "uploads/whychoose") //uploads/whychoose path name folder
+        cb(null, "uploads/whychoose");
     },
     filename: function (req, file, cb) {
-        cb(null, `${Date.now()}-${file.originalname}`)
+        cb(null, `${Date.now()}-${file.originalname}`);
     }
-})
+});
+const upload = multer({ storage: storage });
 
-const upload =multer({ storage: storage })
 
-const { whychooseInsert, whychooseView } = require("../../controllers/admin/whychooseControllers");
-let whychooseRoutes = express.Router();
+whychooseRoutes.post('/insert', upload.single('whychooseImage'), whychooseInsert);
+whychooseRoutes.get('/view', whychooseView);
+whychooseRoutes.post('/delete', whychoosemultiDelete);
+whychooseRoutes.post('/change-status', whychooseStatus);
 
-whychooseRoutes.post('/insert', upload.single('whychooseImage'), whychooseInsert)
 
-whychooseRoutes.get('/view', whychooseView)
-
-module.exports = { whychooseRoutes }
+module.exports = whychooseRoutes;

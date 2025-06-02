@@ -51,12 +51,14 @@ createRoot(document.getElementById('root')).render(
           <Route path='/view-material' element={<View_Material />} />
           <Route path='/edit-material/:id' element={<Add_Material />} />
           <Route path='/add-category' element={<Add_Category />} />
+          <Route path='/edit-category/:id' element={<Add_Category />} />
           <Route path='/view-category' element={<View_Category />} />
           <Route path='/add-Sub-category' element={<Add_Sub_Category />} />
           <Route path='/view-Sub-category' element={<View_Sub_Category />} />
           <Route path='/add-Sub-category_2' element={<Add_Sub_Category_2 />} />
           <Route path='/view-Sub-category_2' element={<View_Sub_Category_2 />} />
           <Route path='/add-why' element={<Add_Why />} />
+          <Route path='/edit-why/:id' element={<Add_Why />} />
           <Route path='/view-why' element={<View_why />} />
           <Route path='/add-slider' element={<Add_Slider />} />
           <Route path='/view-slider' element={<View_Slider />} />

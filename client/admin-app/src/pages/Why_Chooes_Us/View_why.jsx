@@ -6,7 +6,10 @@ import axios from 'axios';
 export default function View_why() {
   const [whyData, setWhyData] = useState([]);
   const [staticPath, setStaticPath] = useState('');
-  const [showSearch, setShowSearch] = useState(false); // 🔹 For toggling search box
+  const [showSearch, setShowSearch] = useState(false);
+  const [ids, setIds] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+
   const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
   const toggleSearch = () => {
@@ -26,6 +29,60 @@ export default function View_why() {
     getwhyChoose();
   }, []);
 
+  // Sync selectAll with ids and whyData
+  useEffect(() => {
+    if (whyData.length > 0 && ids.length === whyData.length) {
+      setSelectAll(true);
+    } else {
+      setSelectAll(false);
+    }
+  }, [ids, whyData]);
+
+  const handleCheckAll = (e) => {
+    const checked = e.target.checked;
+    setSelectAll(checked);
+    if (checked) {
+      const allIds = whyData.map((item) => item._id);
+      setIds(allIds);
+    } else {
+      setIds([]);
+    }
+  };
+
+  const handleCheckSingle = (event) => {
+    const value = event.target.value;
+    if (event.target.checked) {
+      setIds((prev) => [...prev, value]);
+    } else {
+      setIds((prev) => prev.filter((id) => id !== value));
+      // setSelectAll(false); // No need, handled by useEffect
+    }
+  };
+
+  const handleDelete = async () => {
+    if (ids.length === 0) return;
+    try {
+      await axios.post(`${apiBaseUrl}whychoose/delete`, { ids });
+      getwhyChoose();
+      setIds([]);
+      setSelectAll(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChangeStatus = async () => {
+    if (ids.length === 0) return;
+    try {
+      await axios.post(`${apiBaseUrl}whychoose/change-status`, { ids });
+      getwhyChoose();
+      setIds([]);
+      setSelectAll(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div>
       <section className='w-full'>
@@ -43,27 +100,25 @@ export default function View_why() {
         <div className='w-full min-h-[620px]'>
           <div className='max-w-[1220px] mx-auto py-5'>
 
-            {/* Header with Filter */}
+            {/* Header */}
             <div className='flex items-center justify-between bg-slate-100 py-3 px-4 border rounded-t-md border-slate-400'>
               <h3 className='text-[26px] font-semibold'>View Why Choose Us</h3>
-              <div className='flex justify-between'>
-                {/* 🔹 Filter icon with click */}
+              <div className='flex'>
                 <div
                   className='cursor-pointer text-white w-[40px] h-[40px] rounded-lg bg-blue-700 hover:bg-blue-900 mx-3'
                   onClick={toggleSearch}
                 >
                   <FaFilter className='text-white my-3 mx-2.5' />
                 </div>
-                <button className='text-white font-medium px-4 bg-green-700 rounded-lg hover:bg-green-900'>
+                <button onClick={handleChangeStatus} className='text-white font-medium px-4 bg-green-700 rounded-lg hover:bg-green-900'>
                   Change Status
                 </button>
-                <button className='text-white font-medium px-4 mx-4 bg-red-700 rounded-lg hover:bg-red-900'>
+                <button onClick={handleDelete} className='text-white font-medium px-4 mx-4 bg-red-700 rounded-lg hover:bg-red-900'>
                   Delete
                 </button>
               </div>
             </div>
 
-            {/* 🔹 Search Box toggle area */}
             {showSearch && (
               <div className="my-4 p-4 bg-white border rounded-lg shadow-sm max-w-md">
                 <form className="flex">
@@ -76,32 +131,18 @@ export default function View_why() {
                     type="submit"
                     className="p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg hover:bg-blue-800"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                      />
-                    </svg>
-                    <span className="sr-only">Search</span>
+                    🔍
                   </button>
                 </form>
               </div>
             )}
 
-            {/* Table Section */}
+            {/* Table */}
             <div className='border border-slate-400 border-t-0 rounded-b-md overflow-x-auto'>
               <table className='w-full text-gray-500'>
                 <thead className='text-gray-900 text-[12px] uppercase bg-gray-50'>
                   <tr>
-                    <th><input type='checkbox' className='w-4 h-4' /></th>
+                    <th><input type='checkbox' className='w-4 h-4' checked={selectAll} onChange={handleCheckAll} /></th>
                     <th className='px-6 py-3'>Title</th>
                     <th className='px-6 py-3'>Image</th>
                     <th className='px-6 py-3'>Description</th>
@@ -111,9 +152,17 @@ export default function View_why() {
                   </tr>
                 </thead>
                 <tbody>
-                  {whyData.map((item, index) => (
-                    <tr key={index} className='bg-white hover:bg-gray-50'>
-                      <td className='p-4'><input type='checkbox' className='w-4 h-4' /></td>
+                  {whyData.map((item) => (
+                    <tr key={item._id} className='bg-white hover:bg-gray-50'>
+                      <td className='p-4'>
+                        <input
+                          onChange={handleCheckSingle}
+                          checked={ids.includes(item._id)}
+                          value={item._id}
+                          type='checkbox'
+                          className='w-4 h-4'
+                        />
+                      </td>
                       <td className='px-6 py-4'>{item.whychooseTitle}</td>
                       <td className='px-6 py-4'>
                         <img
@@ -130,11 +179,11 @@ export default function View_why() {
                         </button>
                       </td>
                       <td className='px-6 py-4'>
-                        <div className='w-[40px] flex items-center justify-center h-[40px] rounded-[50%] bg-blue-700 hover:bg-blue-800'>
-                          <Link to={`/edit-why/${item._id}`}>
+                        <Link to={`/edit-why/${item._id}`}>
+                          <div className='w-[40px] flex items-center justify-center h-[40px] rounded-full bg-blue-700 hover:bg-blue-800'>
                             <FaPen className='text-white' />
-                          </Link>
-                        </div>
+                          </div>
+                        </Link>
                       </td>
                     </tr>
                   ))}
@@ -153,5 +202,3 @@ export default function View_why() {
     </div>
   );
 }
-
-export { View_why };

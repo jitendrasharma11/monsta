@@ -4,95 +4,79 @@ import { FaFilter, FaPen } from 'react-icons/fa';
 import axios from 'axios';
 
 export default function View_Material() {
-    let [materialList, setMaterialList] = useState([]);
-    let [activeFilter, setActiveFilter] = useState(true);
-    let [ids, setIds] = useState([]);
-    let [selectAll, setSelectAll] = useState(false);
-    let [materialName, setMaterialName] = useState();
+    const [materialList, setMaterialList] = useState([]);
+    const [activeFilter, setActiveFilter] = useState(true);
+    const [ids, setIds] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
+    const [materialName, setMaterialName] = useState('');
+    const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
-    let apiBaseUrl = import.meta.env.VITE_APIBASEURL; // e.g., http://localhost:8000/admin/
-
-    let getMaterial = () => {
+    const getMaterial = () => {
         axios.get(`${apiBaseUrl}material/view`, {
-            params: {
-                materialName
-            }
+            params: { materialName }
         })
-
-            .then((res) => res.data)
-            .then((finalRes) => {
-                setMaterialList(finalRes.data);
-            })
-            .catch((err) => console.error("Material Fetch Error:", err));
+        .then(res => res.data)
+        .then(finalRes => setMaterialList(finalRes.data))
+        .catch(err => console.error("Material Fetch Error:", err));
     };
 
     useEffect(() => {
         getMaterial();
     }, [materialName]);
 
-    let handleSelectAll = (event) => {
+    // Select all checkbox handler
+    const handleSelectAll = (event) => {
         if (event.target.checked) {
-            let allIds = materialList.map((item) => item._id);
+            const allIds = materialList.map(item => item._id);
             setIds(allIds);
         } else {
             setIds([]);
         }
         setSelectAll(event.target.checked);
-    }
+    };
 
-    let getAllCheckedvalue = (event) => {
-
-        if (event.target.checked && !ids.includes(event.target.value)) {
-            setIds([...ids, event.target.value])
+    // Individual checkbox handler
+    const getAllCheckedvalue = (event) => {
+        const value = event.target.value;
+        if (event.target.checked && !ids.includes(value)) {
+            setIds([...ids, value]);
+        } else {
+            setIds(ids.filter(id => id !== value));
         }
-        else {
-            // let filnalArray=ids.filter((v)=>v!=event.target.value)
-            setIds(ids.filter((v) => v != event.target.value))
-        }
-    }
+    };
 
-    let deleteMaterial = () => {
+    // Bulk delete
+    const deleteMaterial = () => {
+        if (ids.length === 0) return; // Optional: no action if none selected
         axios.post(`${apiBaseUrl}material/delete`, { ids })
-            .then((res) => res.data)
-            .then((finaLres) => {
-                console.log(finaLres)
-                getMaterial()
-                setIds([])
+            .then(res => res.data)
+            .then(() => {
+                getMaterial();
+                setIds([]);
+            });
+    };
 
-            })
-    }
-
-
-    let changeStatus = () => {
+    // Bulk status change
+    const changeStatus = () => {
+        if (ids.length === 0) return; // Optional: no action if none selected
         axios.post(`${apiBaseUrl}material/change-status`, { ids })
-            .then((res) => res.data)
-            .then((finaLres) => {
-                console.log(finaLres)
-                getMaterial()
-                setIds([])
+            .then(res => res.data)
+            .then(() => {
+                getMaterial();
+                setIds([]);
+            });
+    };
 
-            })
-    }
-
+    // Update selectAll if all checkboxes are selected/deselected
     useEffect(() => {
-        console.log(ids)
-    }, [ids])
-
-    useEffect(() => {
-        if (materialList.length > 1) {
-            if (materialList.length == ids.length) {
-                setSelectAll(true)
-            }
-            else {
-                setSelectAll(false)
-            }
+        if (materialList.length > 0) {
+            setSelectAll(materialList.length === ids.length);
         }
-    }, [ids])
+    }, [ids, materialList]);
 
     return (
         <section className="w-full px-4 py-6">
             <div className="border rounded-lg shadow-sm">
-
                 {/* Header Section */}
                 <div className="flex items-center justify-between bg-[#f2f6fb] px-6 py-4 border-b rounded-t-lg">
                     <h2 className="text-2xl font-bold text-gray-900">View Material</h2>
@@ -100,13 +84,26 @@ export default function View_Material() {
                         <button
                             className="bg-blue-700 hover:bg-blue-800 text-white rounded-full p-3"
                             onClick={() => setActiveFilter(!activeFilter)}
+                            title="Toggle Filter"
                         >
                             <FaFilter />
                         </button>
-                        <button onClick={changeStatus} className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                        <button
+                            onClick={changeStatus}
+                            disabled={ids.length === 0}
+                            className={`px-4 py-2 rounded-lg text-sm font-semibold text-white ${
+                                ids.length === 0 ? 'bg-green-400 cursor-not-allowed' : 'bg-green-700 hover:bg-green-800'
+                            }`}
+                        >
                             Change Status
                         </button>
-                        <button onClick={deleteMaterial} className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                        <button
+                            onClick={deleteMaterial}
+                            disabled={ids.length === 0}
+                            className={`px-4 py-2 rounded-lg text-sm font-semibold text-white ${
+                                ids.length === 0 ? 'bg-red-400 cursor-not-allowed' : 'bg-red-700 hover:bg-red-800'
+                            }`}
+                        >
                             Delete
                         </button>
                     </div>
@@ -116,17 +113,13 @@ export default function View_Material() {
                 {!activeFilter && (
                     <div className="px-6 py-4 border-b bg-white">
                         <form onSubmit={e => e.preventDefault()} className="flex max-w-sm">
-                            <div className="relative w-full">
-                                <label htmlFor="search" className="sr-only">Search Name</label>
-                                <input
-                                    onChange={(e)=>setMaterialName(e.target.value)}
-                                    type="text"
-                                    id="search"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                                    placeholder="Search Name"
-                                    required
-                                />
-                            </div>
+                            <input
+                                type="text"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                                placeholder="Search Name"
+                                value={materialName}
+                                onChange={e => setMaterialName(e.target.value)}
+                            />
                             <button
                                 onClick={getMaterial}
                                 type="submit"
@@ -157,7 +150,8 @@ export default function View_Material() {
                                         checked={selectAll}
                                         onChange={handleSelectAll}
                                         type="checkbox"
-                                        className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
+                                        className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
+                                    />
                                 </th>
                                 <th className="px-6 py-3 font-semibold">Material Name</th>
                                 <th className="px-6 py-3 font-semibold">Order</th>
@@ -166,43 +160,45 @@ export default function View_Material() {
                             </tr>
                         </thead>
                         <tbody>
-                            {
-                                materialList.length >= 1 ? (
-                                    materialList.map((item, index) => (
-                                        <tr key={item._id || index} className="bg-white hover:bg-gray-50">
-                                            <td className="px-4 py-4">
-                                                <input onChange={getAllCheckedvalue} checked={ids.includes(item._id)} type="checkbox" value={item._id} className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
-                                            </td>
-                                            <td className="px-6 py-4 font-medium text-gray-900">{item.materialName}</td>
-                                            <td className="px-6 py-4">{item.materialOrder}</td>
-                                            <td className="px-6 py-4">
-                                                {item.materialStatus ? (
-                                                    <button className="inline-block bg-green-600 text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
-                                                        Active
-                                                    </button>
-                                                ) : (
-                                                    <button className="inline-block bg-red-600 text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
-                                                        Deactivated
-                                                    </button>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <Link to={`/edit-material/${item._id}`}>
-                                                    <div className="w-[40px] h-[40px] rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center">
-
-                                                        <FaPen className="text-white" />
-
-                                                    </div>
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={5} className="text-center py-4">No Data Found</td>
+                            {materialList.length > 0 ? (
+                                materialList.map((item) => (
+                                    <tr key={item._id} className="bg-white hover:bg-gray-50">
+                                        <td className="px-4 py-4">
+                                            <input
+                                                type="checkbox"
+                                                value={item._id}
+                                                checked={ids.includes(item._id)}
+                                                onChange={getAllCheckedvalue}
+                                                className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
+                                            />
+                                        </td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">{item.materialName}</td>
+                                        <td className="px-6 py-4">{item.materialOrder}</td>
+                                        <td className="px-6 py-4">
+                                            {item.materialStatus ? (
+                                                <button className="inline-block bg-green-600 text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
+                                                    Active
+                                                </button>
+                                            ) : (
+                                                <button className="inline-block bg-red-600 text-white text-sm font-semibold px-5 py-1.5 rounded-lg">
+                                                    Deactive
+                                                </button>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <Link to={`/edit-material/${item._id}`}>
+                                                <div className="w-[40px] h-[40px] rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center">
+                                                    <FaPen className="text-white" />
+                                                </div>
+                                            </Link>
+                                        </td>
                                     </tr>
-                                )
-                            }
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-4 text-gray-700 font-semibold">No Data Found</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
