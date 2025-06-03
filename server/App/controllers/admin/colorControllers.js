@@ -29,16 +29,26 @@ let colorInsert = async (req, res) => {
     }
 }
 let colorView = async (req, res) => {
+   
     let searchObj = {
 
     } 
+    let {currentPage,limit}=req.query
+
     if (req.query.colorName != '') {
         searchObj['colorName']=new RegExp(req.query.colorName,"i")
         
     }
-    let data = await colorModel.find(searchObj)
+    let finalSkip=(currentPage-1)*limit
+
+    let data = await colorModel.find(searchObj).skip(finalSkip).limit(limit)
+
+     let AllNumberRec = await colorModel.find(searchObj)
+
     let obj = {
         status: 1,
+        AllNumberRec:AllNumberRec.length,
+        pages:Math.ceil(AllNumberRec.length/limit),
         msg: "View Color",
         data
     }

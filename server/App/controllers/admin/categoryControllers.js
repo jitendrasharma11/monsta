@@ -38,10 +38,27 @@ let categoryInsert = async (req, res) => {
 }
 
 let categoryView = async (req, res) => {
-    let data = await categoryModel.find()
+
+
+    let searchObj = {
+
+    }
+    let {currentPage,limit}=req.query
+
+    if (req.query.categoryName != '') {
+        searchObj['categoryName']=new RegExp(req.query.categoryName,"i")
+        
+    }
+    let finalSkip=(currentPage-1)*limit
+
+    let data = await categoryModel.find(searchObj).skip(finalSkip).limit(limit)
+
+    let AllNumberRec = await categoryModel.find(searchObj)
 
     let obj = {
         status: 1,
+        AllNumberRec:AllNumberRec.length,
+        pages:Math.ceil(AllNumberRec.length/limit),
         msg: "Category View",
         staticPath: process.env.CATEGORYiMAGEPATH,
         data

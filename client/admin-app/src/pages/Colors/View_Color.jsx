@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { FaFilter } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { Link } from 'react-router-dom';
+import ResponsivePagination from 'react-responsive-pagination';
 
 export default function ViewColor() {
     let [ids, setIds] = useState([]);
@@ -10,23 +11,30 @@ export default function ViewColor() {
     let [selectAll, setSelectAll] = useState(false);
     let [activeFilter, setActiveFilter] = useState(true);
     let [colorName, setColorName] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage,setTotalPage]=useState(0);
+    const [limit,setlimit]=useState(5);
+
     let baseUrl = import.meta.env.VITE_APIBASEURL;
 
     let colorView = () => {
         axios.get(`${baseUrl}color/view`, {
             params: {
                 colorName,
+                currentPage,
+                limit
             }
         })
             .then((res) => res.data)
             .then((finalRes) => {
+                setTotalPage(finalRes.pages);
                 setGetColorData(finalRes.data);
             });
     };
 
     useEffect(() => {
         colorView();
-    }, [colorName]);
+    }, [colorName,currentPage,limit]);
 
     let handleSelectAll = (event) => {
         if (event.target.checked) {
@@ -94,6 +102,24 @@ export default function ViewColor() {
                 <div className='bg-slate-100 flex p-4 justify-between items-center form-heading'>
                     <h3 className='text-[26px] font-semibold'>View Color</h3>
                     <div className='flex items-center gap-2 mr-3'>
+                        <div className="inline-block relative w-48">
+                            <select
+                                onChange={(e)=>setlimit(e.target.value)}
+                                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                defaultValue=""
+                            >
+                                <option disabled value="">Select Items View</option>
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                                    <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
+                                </svg>
+                            </div>
+                        </div>
                         <button onClick={() => setActiveFilter(!activeFilter)} className='text-white font-bold w-[40px] h-[40px] rounded-sm flex justify-center items-center bg-blue-700'>
                             <FaFilter />
                         </button>
@@ -136,6 +162,7 @@ export default function ViewColor() {
                                         checked={selectAll}
                                     />
                                 </th>
+                                <th className='w-[20%]'>Sr No</th>
                                 <th className='w-[20%]'>Color Name</th>
                                 <th className='w-[12%]'>Code</th>
                                 <th className='w-[15%]'>Order</th>
@@ -145,7 +172,7 @@ export default function ViewColor() {
                         </thead>
                         <tbody>
                             {getColorData.length >= 1 ? (
-                                getColorData.map((value) => {
+                                getColorData.map((value,index) => {
                                     const { _id, colorName, colorCode, colorOrder, colorStatus } = value;
                                     return (
                                         <tr key={_id} className='bg-white border-gray-200 hover:bg-gray-50'>
@@ -158,6 +185,7 @@ export default function ViewColor() {
                                                     value={_id}
                                                 />
                                             </td>
+                                            <td className='text-base font-semibold text-black'>{(currentPage-1)*limit+(index+1)}</td>
                                             <td className='text-base font-semibold text-black'>{colorName}</td>
                                             <td>{colorCode}</td>
                                             <td>{colorOrder}</td>
@@ -185,6 +213,11 @@ export default function ViewColor() {
                             )}
                         </tbody>
                     </table>
+                    <ResponsivePagination
+                        current={currentPage}
+                        total={totalPage}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
             </section>
         </>

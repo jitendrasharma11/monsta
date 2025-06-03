@@ -1,28 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import ResponsivePagination from 'react-responsive-pagination';
 import { FaFilter, FaPen } from 'react-icons/fa';
 import axios from 'axios';
 
 export default function View_Material() {
+
     const [materialList, setMaterialList] = useState([]);
     const [activeFilter, setActiveFilter] = useState(true);
     const [ids, setIds] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const [materialName, setMaterialName] = useState('');
+    const [materialOrder, setmaterialOrder] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(0)
+    const [limit,setlimit]=useState(5)
+
     const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
     const getMaterial = () => {
         axios.get(`${apiBaseUrl}material/view`, {
-            params: { materialName }
+            params: { materialName, materialOrder, currentPage,limit }
         })
-        .then(res => res.data)
-        .then(finalRes => setMaterialList(finalRes.data))
-        .catch(err => console.error("Material Fetch Error:", err));
+            .then(res => res.data)
+            .then(finalRes => {
+                setMaterialList(finalRes.data);
+                setTotalPage(finalRes.pages);
+            })
+            .catch(err => console.error("Material Fetch Error:", err));
     };
 
     useEffect(() => {
         getMaterial();
-    }, [materialName]);
+    }, [materialName, materialOrder, currentPage,limit]);
 
     // Select all checkbox handler
     const handleSelectAll = (event) => {
@@ -81,6 +91,25 @@ export default function View_Material() {
                 <div className="flex items-center justify-between bg-[#f2f6fb] px-6 py-4 border-b rounded-t-lg">
                     <h2 className="text-2xl font-bold text-gray-900">View Material</h2>
                     <div className="flex items-center gap-3">
+                        <div className="inline-block relative w-48">
+                            <select
+                                onChange={(e)=>setlimit(e.target.value)}
+                                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                defaultValue=""
+                            >
+                                <option disabled value="">Select Items View</option>
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                                    <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
+                                </svg>
+                            </div>
+                        </div>
+
                         <button
                             className="bg-blue-700 hover:bg-blue-800 text-white rounded-full p-3"
                             onClick={() => setActiveFilter(!activeFilter)}
@@ -91,18 +120,16 @@ export default function View_Material() {
                         <button
                             onClick={changeStatus}
                             disabled={ids.length === 0}
-                            className={`px-4 py-2 rounded-lg text-sm font-semibold text-white ${
-                                ids.length === 0 ? 'bg-green-400 cursor-not-allowed' : 'bg-green-700 hover:bg-green-800'
-                            }`}
+                            className={`px-4 py-2 rounded-lg text-sm font-semibold text-white ${ids.length === 0 ? 'bg-green-400 cursor-not-allowed' : 'bg-green-700 hover:bg-green-800'
+                                }`}
                         >
                             Change Status
                         </button>
                         <button
                             onClick={deleteMaterial}
                             disabled={ids.length === 0}
-                            className={`px-4 py-2 rounded-lg text-sm font-semibold text-white ${
-                                ids.length === 0 ? 'bg-red-400 cursor-not-allowed' : 'bg-red-700 hover:bg-red-800'
-                            }`}
+                            className={`px-4 py-2 rounded-lg text-sm font-semibold text-white ${ids.length === 0 ? 'bg-red-400 cursor-not-allowed' : 'bg-red-700 hover:bg-red-800'
+                                }`}
                         >
                             Delete
                         </button>
@@ -119,6 +146,14 @@ export default function View_Material() {
                                 placeholder="Search Name"
                                 value={materialName}
                                 onChange={e => setMaterialName(e.target.value)}
+                            />
+
+                            <input
+                                type="text"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                                placeholder="Search Order"
+                                value={materialOrder}
+                                onChange={e => setmaterialOrder(e.target.value)}
                             />
                             <button
                                 onClick={getMaterial}
@@ -139,12 +174,12 @@ export default function View_Material() {
                         </form>
                     </div>
                 )}
-
                 {/* Table Section */}
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-gray-700">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-t">
                             <tr>
+
                                 <th className="px-4 py-3">
                                     <input
                                         checked={selectAll}
@@ -153,6 +188,7 @@ export default function View_Material() {
                                         className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
                                     />
                                 </th>
+                                <th className="px-6 py-3 font-semibold">Sr No</th>
                                 <th className="px-6 py-3 font-semibold">Material Name</th>
                                 <th className="px-6 py-3 font-semibold">Order</th>
                                 <th className="px-6 py-3 font-semibold">Status</th>
@@ -161,8 +197,9 @@ export default function View_Material() {
                         </thead>
                         <tbody>
                             {materialList.length > 0 ? (
-                                materialList.map((item) => (
+                                materialList.map((item, index) => (
                                     <tr key={item._id} className="bg-white hover:bg-gray-50">
+
                                         <td className="px-4 py-4">
                                             <input
                                                 type="checkbox"
@@ -171,7 +208,9 @@ export default function View_Material() {
                                                 onChange={getAllCheckedvalue}
                                                 className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
                                             />
+
                                         </td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">{(currentPage-1)*limit+(index+1)}</td>
                                         <td className="px-6 py-4 font-medium text-gray-900">{item.materialName}</td>
                                         <td className="px-6 py-4">{item.materialOrder}</td>
                                         <td className="px-6 py-4">
@@ -201,6 +240,11 @@ export default function View_Material() {
                             )}
                         </tbody>
                     </table>
+                    <ResponsivePagination
+                        current={currentPage}
+                        total={totalPage}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
             </div>
         </section>

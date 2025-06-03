@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaFilter, FaPen } from 'react-icons/fa';
 import axios from 'axios';
+import ResponsivePagination from 'react-responsive-pagination';
 
 export default function View_Category() {
     const [activeFilter, setActiveFilter] = useState(true);
@@ -9,21 +10,32 @@ export default function View_Category() {
     const [staticPath, setStaticPath] = useState('');
     const [ids, setIds] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
+    const [categoryName,setcategoryName]=useState('')
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage,setTotalPage]=useState(0);
+    const [limit,setlimit]=useState(5);
 
     const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
     const getCategory = () => {
-        axios.get(`${apiBaseUrl}category/view`)
+        axios.get(`${apiBaseUrl}category/view`,{
+            params:{
+                categoryName,
+                currentPage,
+                limit
+            }
+        })
             .then((res) => res.data)
             .then((finalRes) => {
                 setCategory(finalRes.data);
                 setStaticPath(finalRes.staticPath);
+                setTotalPage(finalRes.pages)
             });
     };
 
     useEffect(() => {
         getCategory();
-    }, []);
+    }, [categoryName,currentPage,limit]);
 
     const getAllCheckedvalue = (event) => {
         const value = event.target.value;
@@ -83,9 +95,11 @@ export default function View_Category() {
                             type="text"
                             className="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg p-2.5"
                             placeholder="Search Name"
+                            onChange={e => setcategoryName(e.target.value)}
                         />
                         <button
                             type="submit"
+                            onClick={getCategory()}
                             className="p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg hover:bg-blue-800"
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 20 20">
@@ -108,6 +122,24 @@ export default function View_Category() {
                 <div className="flex items-center justify-between bg-[#f2f6fb] px-6 py-4 border-b rounded-t-lg">
                     <h2 className="text-2xl font-bold text-gray-900">View Category</h2>
                     <div className="flex items-center gap-3">
+                        <div className="inline-block relative w-48">
+                            <select
+                                onChange={(e)=>setlimit(e.target.value)}
+                                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                defaultValue=""
+                            >
+                                <option disabled value="">Select Items View</option>
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                                    <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
+                                </svg>
+                            </div>
+                        </div>
                         <button
                             className="bg-blue-700 hover:bg-blue-800 text-white rounded-full p-3"
                             onClick={() => setActiveFilter(!activeFilter)}
@@ -142,6 +174,7 @@ export default function View_Category() {
                                         onChange={handleSelectAll}
                                     />
                                 </th>
+                                <th className="px-6 py-3 font-semibold">Sr No</th>
                                 <th className="px-6 py-3 font-semibold">Name</th>
                                 <th className="px-6 py-3 font-semibold">Image</th>
                                 <th className="px-6 py-3 font-semibold">Order</th>
@@ -162,6 +195,7 @@ export default function View_Category() {
                                                 onChange={getAllCheckedvalue}
                                             />
                                         </td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">{(currentPage-1)*limit+(index+1)}</td>
                                         <td className="px-6 py-4 font-medium text-gray-900">{items.categoryName}</td>
                                         <td className="px-6 py-4">
                                             <img
@@ -197,6 +231,11 @@ export default function View_Category() {
                             )}
                         </tbody>
                     </table>
+                    <ResponsivePagination
+                     current={currentPage}
+                     total={totalPage}
+                     onPageChange={setCurrentPage}
+                   />
                 </div>
             </div>
         </section>

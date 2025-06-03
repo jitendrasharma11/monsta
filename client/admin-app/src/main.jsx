@@ -6,6 +6,7 @@ import MainLayout from './common/MainLayout'
 import Login from './pages/Login'
 import Home from './pages/Home'
 import User from './pages/User'
+import 'react-responsive-pagination/themes/classic-light-dark.css';
 import Contact_Enquiry from './pages/Enquiry/Contact_Enquiry'
 import Add_Color from './pages/Colors/Add_Color'
 import View_Color from './pages/Colors/View_Color'
@@ -36,7 +37,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-         <Route path='/' element={<Login />} />
+        <Route path='/' element={<Login />} />
 
         <Route path='/' element={<MainLayout />}>
 
@@ -64,7 +65,7 @@ createRoot(document.getElementById('root')).render(
           <Route path='/view-slider' element={<View_Slider />} />
           <Route path='/add-country' element={<Add_Country />} />
           <Route path='/view-country' element={<View_Country />} />
-          <Route path='/edit-country/:id' element={<Add_Country/>} />
+          <Route path='/edit-country/:id' element={<Add_Country />} />
           <Route path='/add-testimonials' element={<Add_Testimonial />} />
           <Route path='/view-testimonials' element={<View_Testimonial />} />
           <Route path='/add-faq' element={<Add_Faq />} />
@@ -75,7 +76,7 @@ createRoot(document.getElementById('root')).render(
           <Route path='/order' element={<Order />} />
         </Route>
 
-       
+
 
       </Routes>
 

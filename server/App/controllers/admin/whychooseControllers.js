@@ -32,19 +32,32 @@ let whychooseInsert = async (req, res) => {
 };
 
 let whychooseView = async (req, res) => {
-    try {
-        let data = await whychooseModel.find();
-        res.send({
-            status: 1,
-            msg: "Why Choose View",
-            staticPath: process.env.WHYCHOOSEIMAGEPATH,
-            data
-        });
-    } catch (error) {
-        res.send({ status: 0, msg: "View error", error });
-    }
-};
+  
+    let searchObj = {
 
+    }
+    let {currentPage,limit}=req.query
+
+    if (req.query.whychooseTitle != '') {
+        searchObj['whychooseTitle']=new RegExp(req.query.whychooseTitle,"i")
+        
+    }
+    let finalSkip=(currentPage-1)*limit
+
+    let data = await whychooseModel.find(searchObj).skip(finalSkip).limit(limit)
+
+    let AllNumberRec = await whychooseModel.find(searchObj)
+
+    let obj = {
+        status: 1,
+        AllNumberRec:AllNumberRec.length,
+        pages:Math.ceil(AllNumberRec.length/limit),
+        msg: "Why Choose View",
+        staticPath: process.env.WHYCHOOSEIMAGEPATH,
+        data
+    }
+    res.send(obj)
+}
 
 let whychoosemultiDelete = async (req, res) => {
     let { ids } = req.body

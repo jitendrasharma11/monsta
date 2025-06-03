@@ -34,26 +34,39 @@ let materialInsert = async (req, res) => {
 }
 
 let materialView = async (req, res) => {
+
+    
+
     let searchObj = {
 
     }
+
+    let {currentPage,limit}=req.query
+
     if (req.query.materialName != '') {
         searchObj['materialName']=new RegExp(req.query.materialName,"i")
         // searchObj['materialName'] = { $regex: req.query.materialName, $options: "i" };
     }
-    // if (req.query.materialOrder != '') {
-    //     searchObj['materialOrder']= Number(req.query.materialOrder)
+    if (req.query.materialOrder != '') {
+        searchObj['materialOrder']= Number(req.query.materialOrder)
          
-    // }
+    }
+    let finalSkip=(currentPage-1)*limit
+    
+    let data = await materialModels.find(searchObj).skip(finalSkip).limit(limit)
 
-    let data = await materialModels.find(searchObj)
+    let AllNumberRec = await materialModels.find(searchObj)
+
     let obj = {
         status: 1,
+        AllNumberRec:AllNumberRec.length,
+        pages:Math.ceil(AllNumberRec.length/limit),
         mgs: "material View",
         data
     }
     res.send(obj)
 }
+
 let materialDelete = async (req, res) => {
     let { id } = req.params;
     let delRes = await materialModels.deleteOne({ _id: id })

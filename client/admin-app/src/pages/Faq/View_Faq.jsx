@@ -2,6 +2,7 @@ import axios from 'axios';
 import { event } from 'jquery';
 import React, { useEffect, useState } from 'react';
 import { use } from 'react';
+import ResponsivePagination from 'react-responsive-pagination';
 import { FaFilter, FaCircleXmark, FaMagnifyingGlass } from 'react-icons/fa6';
 import { MdEdit } from 'react-icons/md';
 import { Link } from 'react-router-dom';
@@ -12,29 +13,35 @@ export default function ViewFaq() {
   let [faqData, setFaqData] = useState([]);
   let [showSearch, setShowSearch] = useState(false);
   let [selectAll, setSelectAll] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage,setTotalPage]=useState(0);
+  const [limit,setlimit]=useState(5);
 
 
   let apiBaseUr = import.meta.env.VITE_APIBASEURL;
 
   let getFaq = () => {
-  axios.get(`${apiBaseUr}faq/view`, {
-    params: {
-      faqQuestion,
-      
-    }
-  })
-    .then(res => res.data)
-    .then(finalRes => {
-      setFaqData(finalRes.data);
+    axios.get(`${apiBaseUr}faq/view`, {
+      params: {
+        faqQuestion,
+        currentPage,
+        limit
+
+      }
     })
-    .catch(err => {
-      console.error("Error fetching FAQ data:", err);
-    });
-};
+      .then(res => res.data)
+      .then(finalRes => {
+        setTotalPage(finalRes.pages);
+        setFaqData(finalRes.data);
+      })
+      .catch(err => {
+        console.error("Error fetching FAQ data:", err);
+      });
+  };
 
   useEffect(() => {
     getFaq();
-  }, [faqQuestion]);
+  }, [faqQuestion,currentPage,limit]);
 
   let handleSelectAll = (event) => {
     if (event.target.checked) {
@@ -78,20 +85,20 @@ export default function ViewFaq() {
         setIds([])
       })
   }
-useEffect(() => {
-        console.log(ids)
-    }, [ids])
+  useEffect(() => {
+    console.log(ids)
+  }, [ids])
 
-    useEffect(() => {
-      if(faqData.length>1){
-        if (faqData.length == ids.length) {
-            setSelectAll(true)
-        }
-        else {
-            setSelectAll(false)
-        }
+  useEffect(() => {
+    if (faqData.length > 1) {
+      if (faqData.length == ids.length) {
+        setSelectAll(true)
       }
-    }, [ids])
+      else {
+        setSelectAll(false)
+      }
+    }
+  }, [ids])
 
   return (
     <>
@@ -135,6 +142,24 @@ useEffect(() => {
         <div className='bg-slate-100 flex p-4 justify-between items-center form-heading'>
           <h3 className='text-[26px] font-semibold'>View Faq</h3>
           <div className='flex items-center gap-2 mr-3'>
+            <div className="inline-block relative w-48">
+                            <select
+                                onChange={(e)=>setlimit(e.target.value)}
+                                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                defaultValue=""
+                            >
+                                <option disabled value="">Select Items View</option>
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                                    <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
+                                </svg>
+                            </div>
+                        </div>
             <div
               className='text-white font-bold w-[40px] h-[40px] rounded-sm flex justify-center items-center bg-blue-700 cursor-pointer'
               onClick={() => setShowSearch(prev => !prev)}
@@ -165,6 +190,7 @@ useEffect(() => {
                     type="checkbox"
                     className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm" />
                 </th>
+                <th className='lg:w-[15%] sm:w-[33%]'>Sr No</th>
                 <th className='lg:w-[20%] sm:w-[33%]'>Question</th>
                 <th className='w-[30%]'>Answer</th>
                 <th className='w-[15%] text-center'>Order</th>
@@ -179,6 +205,7 @@ useEffect(() => {
                   return (
                     <tr key={index} className='bg-white border-gray-200 hover:bg-gray-50'>
                       <td><input onChange={getAllCheckedvalue} checked={ids.includes(item._id)} type="checkbox" value={item._id} className='w-4 h-4' /></td>
+                      <td className='text-base font-semibold text-black py-2'>{(currentPage-1)*limit+(index+1)}</td>
                       <td className='text-base font-semibold text-black py-2'>{faqQuestion}</td>
                       <td className='text-justify py-2'>{faqAnswer}</td>
                       <td className='text-center py-2'>{faqOrder}</td>
@@ -207,6 +234,11 @@ useEffect(() => {
               )}
             </tbody>
           </table>
+          <ResponsivePagination
+            current={currentPage}
+            total={totalPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </section>
     </>

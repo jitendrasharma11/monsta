@@ -37,17 +37,26 @@ let countryAdd = async (req, res) => {
 }
 
 let countryView = async (req, res) => {
+
     let searchObj = {
 
     } 
+    let {currentPage,limit}=req.query
+
     if (req.query.countryName != '') {
         searchObj['countryName']=new RegExp(req.query.countryName,"i")
         
     }
-    let data = await countryModel.find(searchObj)
+    let finalSkip=(currentPage-1)*limit
+
+    let data = await countryModel.find(searchObj).skip(finalSkip).limit(limit)
+
+    let AllNumberRec = await countryModel.find(searchObj)
 
     let obj = {
         status: 1,
+        AllNumberRec:AllNumberRec.length,
+        pages:Math.ceil(AllNumberRec.length/limit),
         msg: "Country View",
         data
     }

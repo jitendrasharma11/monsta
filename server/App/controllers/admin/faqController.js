@@ -35,18 +35,28 @@ let faqAdd = async (req, res) => {
 }
 
 let faqView = async (req, res) => {
+
+
     let searchObj = {
 
     }
+    let {currentPage,limit}=req.query
+
     if (req.query.faqQuestion != '') {
         searchObj.faqQuestion= new RegExp(req.query.faqQuestion, "i");
         
     }
    
+    let finalSkip=(currentPage-1)*limit
 
-    let data = await faqModels.find(searchObj)
+    let data = await faqModels.find(searchObj).skip(finalSkip).limit(limit)
+
+    let AllNumberRec = await faqModels.find(searchObj)
+
     let obj = {
         status: 1,
+        AllNumberRec:AllNumberRec.length,
+        pages:Math.ceil(AllNumberRec.length/limit),
         mgs: "Faq View",
         data
     }

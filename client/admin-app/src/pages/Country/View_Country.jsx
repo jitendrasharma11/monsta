@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FaFilter, FaTimes } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { Link } from 'react-router-dom';
+import ResponsivePagination from 'react-responsive-pagination';
 
 export default function View_Country() {
 
@@ -12,16 +13,20 @@ export default function View_Country() {
     const [showSearch, setShowSearch] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');     // Client-side filter
     const [selectAll, setSelectAll] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage,setTotalPage]=useState(0)
+    const [limit,setlimit]=useState(5)
 
     const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
     // Fetch data from API with filter param
     const getCountry = () => {
         axios.get(`${apiBaseUrl}country/view`, {
-            params: { countryName }
+            params: { countryName,currentPage,limit }
         })
             .then(res => res.data)
             .then(finalRes => {
+                setTotalPage(finalRes.pages);
                 setGetCountryData(finalRes.data);
             })
             .catch(err => console.error("Fetch Country Error:", err));
@@ -30,7 +35,7 @@ export default function View_Country() {
     // Call API whenever countryName changes (server side search)
     useEffect(() => {
         getCountry();
-    }, [countryName]);
+    }, [countryName,currentPage,limit]);
 
     // Toggle search input visibility
     const toggleSearch = () => {
@@ -109,6 +114,24 @@ export default function View_Country() {
                 <div className='bg-slate-100 flex p-4 justify-between items-center form-heading'>
                     <h3 className='text-[26px] font-semibold'>View Country</h3>
                     <div className='flex items-center gap-2 mr-3'>
+                        <div className="inline-block relative w-48">
+                            <select
+                                onChange={(e)=>setlimit(e.target.value)}
+                                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                defaultValue=""
+                            >
+                                <option disabled value="">Select Items View</option>
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                                    <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
+                                </svg>
+                            </div>
+                        </div>
                         <button onClick={toggleSearch} className='text-white font-bold w-[40px] h-[40px] rounded-sm flex justify-center items-center bg-blue-700'>
                             {showSearch ? <FaTimes /> : <FaFilter />}
                         </button>
@@ -141,7 +164,7 @@ export default function View_Country() {
                     <table className='w-full text-sm text-left text-gray-500'>
                         <thead className='text-xs h-[40px] text-gray-700 uppercase bg-gray-50'>
                             <tr>
-                                <th className=" px-2 ">
+                                <th className="px-1.5 ">
                                     <input
                                         checked={selectAll}
                                         onChange={handleSelectAll}
@@ -149,7 +172,8 @@ export default function View_Country() {
                                         className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
                                     />
                                 </th>
-                                <th className='lg:w-[60%] sm:w-[40%]'>Country Name</th>
+                                <th className='lg:w-[15%] sm:w-[40%]'>Sr No</th>
+                                <th className='lg:w-[50%] sm:w-[40%]'>Country Name</th>
                                 <th className='w-[15%]'>Order</th>
                                 <th className='lg:w-[15%] sm:w-[18%]'>Status</th>
                                 <th className='w-[10%]'>Action</th>
@@ -171,6 +195,7 @@ export default function View_Country() {
                                                         className='w-4 h-4'
                                                     />
                                                 </td>
+                                                <td className='text-base font-semibold text-black py-3'>{(currentPage-1)*limit+(index+1)}</td>
                                                 <td className='text-base font-semibold text-black py-3'>{countryName}</td>
                                                 <td>{countryOrder}</td>
                                                 <td>
@@ -198,6 +223,11 @@ export default function View_Country() {
                             }
                         </tbody>
                     </table>
+                    <ResponsivePagination
+                        current={currentPage}
+                        total={totalPage}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
             </section>
         </>

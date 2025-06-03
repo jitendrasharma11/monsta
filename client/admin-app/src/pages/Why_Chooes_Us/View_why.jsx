@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaFilter, FaPen } from "react-icons/fa";
 import axios from 'axios';
+import ResponsivePagination from 'react-responsive-pagination';
 
 export default function View_why() {
   const [whyData, setWhyData] = useState([]);
@@ -9,6 +10,10 @@ export default function View_why() {
   const [showSearch, setShowSearch] = useState(false);
   const [ids, setIds] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [whychooseTitle, setwhychooseTitle] = useState('')
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage,setTotalPage]=useState(0)
+  const [limit,setlimit]=useState(5)
 
   const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
@@ -17,17 +22,24 @@ export default function View_why() {
   };
 
   const getwhyChoose = () => {
-    axios.get(`${apiBaseUrl}whychoose/view`)
+    axios.get(`${apiBaseUrl}whychoose/view`, {
+      params: {
+        whychooseTitle,
+        currentPage,
+        limit
+      }
+    })
       .then((res) => res.data)
       .then((finalRes) => {
         setWhyData(finalRes.data);
+        setTotalPage(finalRes.pages)
         setStaticPath(finalRes.staticPath);
       });
   };
 
   useEffect(() => {
     getwhyChoose();
-  }, []);
+  }, [whychooseTitle,currentPage,limit]);
 
   // Sync selectAll with ids and whyData
   useEffect(() => {
@@ -104,6 +116,24 @@ export default function View_why() {
             <div className='flex items-center justify-between bg-slate-100 py-3 px-4 border rounded-t-md border-slate-400'>
               <h3 className='text-[26px] font-semibold'>View Why Choose Us</h3>
               <div className='flex'>
+                <div className="inline-block relative w-48">
+                            <select
+                                onChange={(e)=>setlimit(e.target.value)}
+                                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                defaultValue=""
+                            >
+                                <option disabled value="">Select Items View</option>
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                                    <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
+                                </svg>
+                            </div>
+                        </div>
                 <div
                   className='cursor-pointer text-white w-[40px] h-[40px] rounded-lg bg-blue-700 hover:bg-blue-900 mx-3'
                   onClick={toggleSearch}
@@ -126,10 +156,12 @@ export default function View_why() {
                     type="text"
                     className="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg p-2.5"
                     placeholder="Search Name"
+                    onChange={e => setwhychooseTitle(e.target.value)}
                   />
                   <button
                     type="submit"
                     className="p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg hover:bg-blue-800"
+                    onClick={getwhyChoose()}
                   >
                     🔍
                   </button>
@@ -143,6 +175,7 @@ export default function View_why() {
                 <thead className='text-gray-900 text-[12px] uppercase bg-gray-50'>
                   <tr>
                     <th><input type='checkbox' className='w-4 h-4' checked={selectAll} onChange={handleCheckAll} /></th>
+                    <th className='px-6 py-3'>Sr No</th>
                     <th className='px-6 py-3'>Title</th>
                     <th className='px-6 py-3'>Image</th>
                     <th className='px-6 py-3'>Description</th>
@@ -152,7 +185,7 @@ export default function View_why() {
                   </tr>
                 </thead>
                 <tbody>
-                  {whyData.map((item) => (
+                  {whyData.map((item,index) => (
                     <tr key={item._id} className='bg-white hover:bg-gray-50'>
                       <td className='p-4'>
                         <input
@@ -163,6 +196,7 @@ export default function View_why() {
                           className='w-4 h-4'
                         />
                       </td>
+                      <td className='px-6 py-4'>{(currentPage-1)*limit+(index+1)}</td>
                       <td className='px-6 py-4'>{item.whychooseTitle}</td>
                       <td className='px-6 py-4'>
                         <img
@@ -194,6 +228,11 @@ export default function View_why() {
                   )}
                 </tbody>
               </table>
+              <ResponsivePagination
+                current={currentPage}
+                total={totalPage}
+                onPageChange={setCurrentPage}
+              />
             </div>
 
           </div>
