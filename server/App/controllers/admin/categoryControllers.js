@@ -43,13 +43,13 @@ let categoryView = async (req, res) => {
     let searchObj = {
 
     }
-    let {currentPage,limit}=req.query
+    let { currentPage, limit } = req.query
 
     if (req.query.categoryName != '') {
-        searchObj['categoryName']=new RegExp(req.query.categoryName,"i")
-        
+        searchObj['categoryName'] = new RegExp(req.query.categoryName, "i")
+
     }
-    let finalSkip=(currentPage-1)*limit
+    let finalSkip = (currentPage - 1) * limit
 
     let data = await categoryModel.find(searchObj).skip(finalSkip).limit(limit)
 
@@ -57,8 +57,8 @@ let categoryView = async (req, res) => {
 
     let obj = {
         status: 1,
-        AllNumberRec:AllNumberRec.length,
-        pages:Math.ceil(AllNumberRec.length/limit),
+        AllNumberRec: AllNumberRec.length,
+        pages: Math.ceil(AllNumberRec.length / limit),
         msg: "Category View",
         staticPath: process.env.CATEGORYiMAGEPATH,
         data
@@ -103,51 +103,49 @@ let categorySingleView = async (req, res) => {
 }
 
 
-const categoryUpdate = async (req, res) => {
+let categoryUpdate = async (req, res) => {
+    let { id } = req.params;
+    let obj;
+    let { categoryName, categoryOrder } = req.body;
+
+    let categoryAdd = {
+        categoryName,
+        categoryOrder,
+        categoryStatus: true
+    };
+
     try {
-        // Defensive fallback in case req.body is undefined
-        const { id } = req.params;
-        const { categoryName, categoryOrder, oldImage } = req.body || {};
+        if (req.file && req.file.filename) {
 
-        // Validation fallback
-        if (!categoryName || !categoryOrder) {
-            return res.status(400).send({ status: 0, msg: "Missing fields in request" });
-        }
+            let categoryView = await categoryModel.find({ _id: id }).select("categoryImage");
 
-        let updateObj = {
-            categoryName,
-            categoryOrder
-        };
-
-        // If new image uploaded
-        if (req.file) {
-            updateObj.categoryImage = 'uploads/' + req.file.filename;
-
-            // Delete old image if it exists
-            const oldPath = path.join(__dirname, '../../', oldImage);
-            if (oldImage && fs.existsSync(oldPath)) {
-                fs.unlinkSync(oldPath);
+            for (let v of categoryView) {
+                let deletePath = "uploads/category/" + v.categoryImage;
+                if (fs.existsSync(deletePath)) {
+                    fs.unlinkSync(deletePath);
+                }
             }
+
+            categoryAdd['categoryImage'] = req.file.filename;
         }
 
-        let data = await categoryModel.updateOne({ _id: id }, { $set: updateObj });
+        let data = await categoryModel.updateOne({ _id: id }, { $set: categoryAdd });
 
-        res.send({
+        obj = {
             status: 1,
-            msg: "Category updated successfully",
+            msg: "Category Updated",
             data
-        });
-
-    } catch (err) {
-        console.error("Update Error:", err);
-        res.status(500).send({
+        };
+        res.send(obj);
+    } catch (error) {
+        console.error("Error updating category:", error);
+        obj = {
             status: 0,
-            msg: "Something went wrong",
-            error: err.message
-        });
+            msg: "Enter Valid Category Records"
+        };
+        res.send(obj);
     }
 };
-
 let categoryStatus = async (req, res) => {
     let { ids } = req.body;
 

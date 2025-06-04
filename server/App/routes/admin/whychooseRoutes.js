@@ -28,4 +28,4 @@ whychooseRoutes.post('/delete', whychoosemultiDelete);
 whychooseRoutes.post('/change-status', whychooseStatus);
 
 
-module.exports = whychooseRoutes;
+module.exports ={whychooseRoutes}

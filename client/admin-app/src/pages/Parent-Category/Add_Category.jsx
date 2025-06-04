@@ -27,7 +27,7 @@ export default function Add_Category() {
                     setFormValue({
                         categoryName: data.categoryName,
                         categoryOrder: data.categoryOrder,
-                        oldImage: data.categoryImage // assuming this is the image path
+                        oldImage: data.categoryImage
                     });
 
                     setTimeout(() => {
@@ -98,11 +98,11 @@ export default function Add_Category() {
                                     <label className="mb-1 font-medium block">Category Image</label>
                                     <>
                                         <style>{`
-    .dropify-wrapper .dropify-message span {
-      font-weight: normal !important;
-      font-size: 20px !important;
-    }
-  `}</style>
+                                    .dropify-wrapper .dropify-message span {
+                                          font-weight: normal !important;
+                                     font-size: 20px !important;
+                                             }
+                                      `}</style>
 
                                         <input
                                             type="file"

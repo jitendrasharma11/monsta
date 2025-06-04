@@ -12,8 +12,6 @@ export default function Add_Why() {
   const navigate = useNavigate();
 
   let { id } = useParams()
-    console.log(id)
-
 
   useEffect(() => {
     $('.dropify').dropify({
@@ -151,7 +149,7 @@ export default function Add_Why() {
                 type="submit"
                 className="text-white bg-purple-500 hover:bg-purple-700 font-medium rounded-lg py-3 px-6 my-3 mx-1.5"
               >
-                Add Why Choose Us
+               {id ? "Update" : "Add"} Why Choose Us
               </button>
             </form>
           </div>
