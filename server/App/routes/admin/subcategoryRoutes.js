@@ -1,30 +1,49 @@
-let express=require("express");
+const express = require("express");
+const multer = require('multer');
+const path = require('path');
 
+const {
+    subcategoryInsert,
+    subcategoryView,
+    subcategorySingleView,
+    subcategoryUpdate,
+    subcategoryMultiDelete,
+    subcategoryStatus,
+    parentCategory
+} = require("../../controllers/admin/subcategoryControllers");
 
-const multer  = require('multer');
-const { subcategoryInsert, subcategoryView, parentCategory } = require("../../controllers/admin/subcategoryControllers");
-// const upload = multer({ dest: 'uploads/category' })
-let storage = multer.diskStorage({
-    destination:function(req,file,cb){
-        return cb(null,"uploads/subcategory")
+// Multer storage config for subcategory images
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, "uploads/subcategory");
     },
-    filename:function(req,file,cb){
-        cb(null,`${Date.now()}-${file.originalname}`) //6515655515pradeep.jpg
-                                                    ////6515655519pradeep.jpg
+    filename: function(req, file, cb){
+        cb(null, `${Date.now()}-${file.originalname}`);
     }
-})
-const upload = multer({ storage: storage })
+});
+const upload = multer({ storage: storage });
 
+let subcategoryRoutes = express.Router();
 
+// Insert new subcategory with image upload
+subcategoryRoutes.post('/insert', upload.single('subcategoryImage'), subcategoryInsert);
 
+// View all subcategories (pagination + search)
+subcategoryRoutes.get('/view', subcategoryView);
 
+// Get single subcategory details for edit form
+subcategoryRoutes.get('/edit-row-data/:id', subcategorySingleView);
 
+// Update subcategory by id with optional image upload
+subcategoryRoutes.put('/update/:id', upload.single('subcategoryImage'), subcategoryUpdate);
 
-let subcategoryRoutes=express.Router();
+// Multi delete subcategories
+subcategoryRoutes.post('/delete', subcategoryMultiDelete);
 
+// Toggle status of subcategories
+subcategoryRoutes.post('/change-status', subcategoryStatus);
 
-subcategoryRoutes.post('/insert', upload.single('subcategoryImage'),  subcategoryInsert)
-subcategoryRoutes.get('/view',   subcategoryView )
-subcategoryRoutes.get('/parentcategory', parentCategory  )
+// Get parent categories (active ones) for dropdown
+subcategoryRoutes.get('/parentcategory', parentCategory);
 
-module.exports={subcategoryRoutes}
+module.exports = { subcategoryRoutes };

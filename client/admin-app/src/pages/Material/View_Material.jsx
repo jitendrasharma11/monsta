@@ -57,7 +57,7 @@ export default function View_Material() {
 
     // Bulk delete
     const deleteMaterial = () => {
-        if (ids.length === 0) return; // Optional: no action if none selected
+        if (ids.length === 0) return; 
         axios.post(`${apiBaseUrl}material/delete`, { ids })
             .then(res => res.data)
             .then(() => {
@@ -68,7 +68,7 @@ export default function View_Material() {
 
     // Bulk status change
     const changeStatus = () => {
-        if (ids.length === 0) return; // Optional: no action if none selected
+        if (ids.length === 0) return;
         axios.post(`${apiBaseUrl}material/change-status`, { ids })
             .then(res => res.data)
             .then(() => {
