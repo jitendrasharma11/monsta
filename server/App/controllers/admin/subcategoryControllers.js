@@ -41,6 +41,7 @@ let subcategoryView = async (req, res) => {
     if (subcategoryName && subcategoryName.trim() !== "") {
         searchObj['subcategoryName'] = new RegExp(subcategoryName, 'i');
     }
+    
 
     let finalSkip = (currentPage - 1) * limit;
 

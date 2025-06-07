@@ -6,9 +6,11 @@ const { countryRoutes } = require("./countryRoutes")
 const { categorylRoutes } = require("./categoryRoutes")
 const {whychooseRoutes} = require("./whychooseRoutes")
 const { subcategoryRoutes } = require("./subcategoryRoutes")
+const { adminauthRoutes } = require("./adminauthRoutes")
 
 let adminRoutes=express.Router()
 
+adminRoutes.use("/auth",adminauthRoutes) //http://localhost:8000/admin/auth/
 adminRoutes.use("/color",colorRoutes) //http://localhost:8000/admin/color/
 adminRoutes.use("/material",materialRoutes) //http://localhost:8000/admin/material/
 adminRoutes.use("/faq",faqRoutes) //http://localhost:8000/admin/faq/

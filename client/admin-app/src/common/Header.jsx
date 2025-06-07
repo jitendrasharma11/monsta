@@ -1,9 +1,21 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { LuMenu } from "react-icons/lu";
 import { FiUser, FiLogOut } from 'react-icons/fi';
 import { MdBusiness } from 'react-icons/md';
+import { loginContext } from '../Context/mainContext';
+import { useNavigate } from 'react-router';
 
 export default function Header() {
+
+
+  let { adminID, setAdminID } = useContext(loginContext)
+  let navigate = useNavigate()
+  useEffect(() => {
+    if (adminID == '') {
+      navigate('/')  //Login page
+    }
+  }, [adminID])
+
   return (
     <div className='w-full'>
       <nav className='bg-white border-gray-200 lg:px-6 py-[15px] border-b-2'>
@@ -39,13 +51,13 @@ export default function Header() {
                 <MdBusiness className="mr-2" />
                 Company Profile
               </a>
-              <a
-                href="/logout"
+              <button
+                onClick={()=>setAdminID('')}
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 <FiLogOut className="mr-2" />
                 Logout
-              </a>
+              </button>
             </div>
           </div>
         </div>

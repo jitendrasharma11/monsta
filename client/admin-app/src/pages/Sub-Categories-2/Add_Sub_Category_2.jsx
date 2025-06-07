@@ -20,11 +20,6 @@ export default function Add_Sub_Category_2() {
             },
         });
     });
-
-
-
-
-
     return (
         <div>
             <section className='w-full'>

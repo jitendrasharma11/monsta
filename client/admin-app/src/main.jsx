@@ -35,25 +35,27 @@ import View_Product from './pages/Product/View_Product';
 import Order from './pages/Order/Order';
 
 import 'react-responsive-pagination/themes/classic-light-dark.css';
+import MainContext from './Context/mainContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <MainContext>
     <BrowserRouter>
       <Routes>
         {/* Login Route Outside Layout */}
         <Route path='/' element={<Login />} />
 
         {/* All other routes inside MainLayout */}
-        <Route element={<MainLayout />}>
+        <Route path='/' element={<MainLayout />}>
           <Route path='/dashboard' element={<DashBoard />} />
           <Route path='/user' element={<User />} />
           <Route path='/contact-enquiry' element={<Contact_Enquiry />} />
           <Route path='/newsletters' element={<Newslatters />} />
-          
+
           <Route path='/add-color' element={<Add_Color />} />
           <Route path='/view-color' element={<View_Color />} />
           <Route path='/edit-color/:id' element={<Add_Color />} />
-          
+
           <Route path='/add-material' element={<Add_Material />} />
           <Route path='/view-material' element={<View_Material />} />
           <Route path='/edit-material/:id' element={<Add_Material />} />
@@ -65,7 +67,7 @@ createRoot(document.getElementById('root')).render(
           <Route path='/add-Sub-category' element={<Add_Sub_Category />} />
           <Route path='/edit-subcategory/:id' element={<Add_Sub_Category />} />
           <Route path='/view-Sub-category' element={<View_Sub_Category />} />
-          
+
           <Route path='/add-Sub-category_2' element={<Add_Sub_Category_2 />} />
           <Route path='/view-Sub-category_2' element={<View_Sub_Category_2 />} />
 
@@ -89,10 +91,11 @@ createRoot(document.getElementById('root')).render(
 
           <Route path='/add-product' element={<Add_Product />} />
           <Route path='/view-product' element={<View_Product />} />
-          
+
           <Route path='/order' element={<Order />} />
         </Route>
       </Routes>
     </BrowserRouter>
+    </MainContext>
   </StrictMode>
 );
