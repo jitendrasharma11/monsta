@@ -1,112 +1,255 @@
-import React from 'react'
-import { Link } from 'react-router'
-import { FaFilter } from "react-icons/fa";
-import { FaPen } from "react-icons/fa";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FaFilter, FaPen } from 'react-icons/fa';
+import axios from 'axios';
+import ResponsivePagination from 'react-responsive-pagination';
 
 export default function View_Sub_Category_2() {
+  const [activeFilter, setActiveFilter] = useState(true);
+  const [subsubcategory, setSubsubcategory] = useState([]);
+  const [staticPath, setStaticPath] = useState('');
+  const [ids, setIds] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [categoryName, setCategoryName] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
+  const [limit, setLimit] = useState(5);
+
+  const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
+
+  const getSubsubcategory = () => {
+    axios
+      .get(`${apiBaseUrl}subsubcategory/view`, {
+        params: {
+          categoryName,
+          currentPage,
+          limit,
+        },
+      })
+      .then((res) => {
+        // Debugging: Check response structure
+        console.log('API response:', res.data);
+
+        const finalRes = res.data;
+        setSubsubcategory(finalRes.data || []);
+        setStaticPath(finalRes.staticPath || '/uploads/subsubcategory/');
+        setTotalPage(finalRes.pages || 1);
+        setIds([]); // Reset selected ids on data load
+      })
+      .catch((err) => {
+        console.error('Error fetching subsubcategory:', err);
+      });
+  };
+
+  useEffect(() => {
+    getSubsubcategory();
+  }, [categoryName, currentPage, limit]);
+
+  // Handle checkbox individual select/deselect
+  const getAllCheckedvalue = (e) => {
+    const value = e.target.value;
+    if (e.target.checked && !ids.includes(value)) {
+      setIds([...ids, value]);
+    } else {
+      setIds(ids.filter((id) => id !== value));
+    }
+  };
+
+  // Handle select/deselect all checkbox
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      const allIds = subsubcategory.map((item) => item._id);
+      setIds(allIds);
+    } else {
+      setIds([]);
+    }
+    setSelectAll(e.target.checked);
+  };
+
+  // Sync selectAll state with ids
+  useEffect(() => {
+    setSelectAll(subsubcategory.length > 0 && ids.length === subsubcategory.length);
+  }, [ids, subsubcategory]);
+
+  // Delete multiple selected subsubcategories
+  const deleteMultiple = () => {
+    if (ids.length === 0) {
+      alert('Please select at least one item to delete.');
+      return;
+    }
+    if (!window.confirm('Are you sure you want to delete selected items?')) return;
+
+    axios
+      .post(`${apiBaseUrl}subsubcategory/delete`, { ids })
+      .then(() => {
+        getSubsubcategory();
+        setIds([]);
+      })
+      .catch((err) => {
+        console.error('Error deleting items:', err);
+      });
+  };
+
+  // Change status of multiple selected subsubcategories
+  const changeStatus = () => {
+    if (ids.length === 0) {
+      alert('Please select at least one item to change status.');
+      return;
+    }
+    axios
+      .post(`${apiBaseUrl}subsubcategory/change-status`, { ids })
+      .then(() => {
+        getSubsubcategory();
+        setIds([]);
+      })
+      .catch((err) => {
+        console.error('Error changing status:', err);
+      });
+  };
+
   return (
-    <div>
-        <section className='w-full'>
-                <div className='border-b-2 text-gray-300'></div>
-                <div className='py-3'>
-                    <nav className='mt-1'>
-                        <ul className='flex items-center'>
-                            <li> <Link to={'/dashboard'}><span className='font-bold text-gray-800'>Home </span> </Link> </li>&nbsp;
-                            <li> <Link to={'/user'}><span className='font-bold text-gray-800'>/&nbsp;Sub Sub Category</span> </Link> </li>
-                            <li> <span className='font-bold text-gray-800'>/&nbsp;View</span></li>
-                        </ul>
+    <section className="w-full px-4 py-6">
+      {!activeFilter && (
+        <div className="mb-6 p-4 bg-white border rounded-lg shadow-sm max-w-xl">
+          <form className="flex" onSubmit={(e) => e.preventDefault()}>
+            <input
+              type="text"
+              className="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg p-2.5"
+              placeholder="Search Category Name"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+            />
+            <button
+              onClick={getSubsubcategory}
+              className="p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg hover:bg-blue-800"
+            >
+              🔍
+            </button>
+          </form>
+        </div>
+      )}
 
-                    </nav>
-                </div>
-                <div className='border-b-2 text-gray-300'></div>
-                <div className='w-full min-h-[620px]'>
-                    <div className='max-w-[1220px] mx-auto py-5'>
-                        <div className='flex items-center justify-between bg-slate-100 py-3 px-4 border rounded-t-md border-slate-400'>
+      <div className="border rounded-lg shadow-sm">
+        <div className="flex items-center justify-between bg-slate-100 px-6 py-4 border-b rounded-t-lg">
+          <h2 className="text-2xl font-bold text-gray-900">View Sub Sub Category</h2>
+          <div className="flex items-center gap-3">
+            <select
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setCurrentPage(1); // reset to first page on limit change
+              }}
+              className="block w-44 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg"
+              value={limit}
+            >
+              <option disabled value="">
+                Select Items View
+              </option>
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+            <button
+              onClick={() => setActiveFilter(!activeFilter)}
+              className="bg-blue-700 hover:bg-blue-800 text-white p-3 rounded-full"
+              title="Toggle Filter"
+              type="button"
+            >
+              <FaFilter />
+            </button>
+            <button
+              onClick={changeStatus}
+              className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+              type="button"
+            >
+              Change Status
+            </button>
+            <button
+              onClick={deleteMultiple}
+              className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+              type="button"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
 
-                            <h3 className='text-[26px] font-semibold'>View Sub Category</h3>
-                            <div className='flex justify-between'>
-                                <div className='cursor-pointer text-white w-[40px] h-[40px] rounded-lg bg-blue-700 hover:bg-blue-900  mx-3'>
-                                <FaFilter className='text-white my-3  mx-2.5' />
-                                </div>
-                                <button className='text-white font-medium px-4 bg-green-700 rounded-lg focus:outline-none hover:bg-green-900'>
-                                    Change Status
-                                </button>
-                                <button className='text-white font-medium px-4 mx-4 bg-red-700 rounded-lg focus:outline-none hover:bg-red-900'>
-                                    Delete
-                                </button>
-                            </div>
-    </div>
-    <div className='border border-slate-400 border-t-0 rounded-b-md'>
-
-    <div className='overflow-x-auto'>
-
-        <table className='w-full text-gray-500'>
-            <thead className='text-gray-900 text-[12px] uppercase bg-gray-50'>
-                <tr>
-                    <th>
-                    <input type='checkbox' className='text-blue-600 text-sm rounded-sm w-4 h-4 border-gray-400 '/>
-                    </th>
-                    <th scope='col' className='px-6 py-3'>Parent Category</th>
-                    <th scope='col' className='px-6 py-3'>Sub Category</th>
-                    <th scope='col' className='px-6 py-3'>Category Name</th>
-                    <th scope='col' className='w-[12%]'>Image</th>
-                    <th scope='col' className='w-[15%]'>Order No</th>
-                    <th scope='col' className='w-[11%]'>Status</th>
-                    <th scope='col' className='w[6%]'>Action</th>
-                </tr>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left text-gray-700">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-t">
+              <tr>
+                <th className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                  />
+                </th>
+                <th className="px-6 py-3 font-semibold">Parent Category</th>
+                <th className="px-6 py-3 font-semibold">Sub Category</th>
+                <th className="px-6 py-3 font-semibold">Name</th>
+                <th className="px-6 py-3 font-semibold">Image</th>
+                <th className="px-6 py-3 font-semibold">Order</th>
+                <th className="px-6 py-3 font-semibold">Status</th>
+                <th className="px-6 py-3 font-semibold">Action</th>
+              </tr>
             </thead>
             <tbody>
-                <tr className='bg-white hover:bg-gray-50'>
-                    <th className='w-4 p-4'>
-                    <input type='checkbox' className='text-blue-600 text-sm rounded-sm w-4 h-4 border-gray-400 '/> 
-                    </th>
-                    <th scope='row' className=' text-[15px] px-6 py-4'>
-                        
-                         Men
-                            
-                        </th>
-
-
-                    <th scope='row' className=' text-[15px] px-6 py-4'>
-                        
-                         Men
-                            
-                        </th>
-                        <th scope='row' className='  text-[15px] px-6 py-4'>
-                       
-                          Shoes
-                           
-                        </th>
-                        <th className='px-6 py-4'>
-                            <img src='https://packshifts.in/images/iso.png' className='w-10 h-10 rounded-full' />
-                        </th>
-                        <th className='text-[15px] px-6  py-4'>1</th>
-                       
-                    <th className=' px-6 py-4'>
-                    <button className='text-white font-medium px-5 py-2 bg-green-700 rounded-lg focus:outline-none hover:bg-green-900'>
-                                    Active
-                                </button>
-                    </th>
-                    <th className='px-2 py-4'>
-                      
-                        <div className='w-[40px]  flex items-center justify-center h-[40px] rounded-[50%] bg-blue-700 hover:bg-blue-800'>
-                        <Link to={'/user'}>
-                        <FaPen className='text-white ' />
-                        </Link>
+              {subsubcategory.length > 0 ? (
+                subsubcategory.map((item) => (
+                  <tr key={item._id} className="bg-white hover:bg-gray-50">
+                    <td className="px-4 py-4">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
+                        value={item._id}
+                        checked={ids.includes(item._id)}
+                        onChange={getAllCheckedvalue}
+                      />
+                    </td>
+                    <td className="px-6 py-4">{item.parentCategory?.categoryName || '-'}</td>
+                    <td className="px-6 py-4">{item.subcategory?.subcategoryName || '-'}</td>
+                    <td className="px-6 py-4">{item.subsubcategoryName}</td>
+                    <td className="px-6 py-4">
+                      <img
+                        src={staticPath + item.subsubcategoryImage}
+                        alt="Sub Subcategory"
+                        className="w-10 h-10 object-cover rounded-full"
+                      />
+                    </td>
+                    <td className="px-6 py-4">{item.subsubcategoryOrder}</td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-block text-white text-sm font-semibold px-5 py-1.5 rounded-lg ${
+                          item.subsubcategoryStatus ? 'bg-green-600' : 'bg-red-600'
+                        }`}
+                      >
+                        {item.subsubcategoryStatus ? 'Active' : 'Deactive'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link to={`/edit-subsubcategory/${item._id}`}>
+                        <div className="w-[40px] h-[40px] rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center">
+                          <FaPen className="text-white" />
                         </div>
-                       
-                    </th>
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} className="text-center py-4 text-gray-700 font-semibold">
+                    No Data Found
+                  </td>
                 </tr>
-
+              )}
             </tbody>
-        </table>
-    </div>
-    </div>
-    </div>
-   </div>
-    </section>
-  </div>
-  )
-}
+          </table>
 
-export{View_Sub_Category_2}
+          <ResponsivePagination current={currentPage} total={totalPage} onPageChange={setCurrentPage} />
+        </div>
+      </div>
+    </section>
+  );
+}

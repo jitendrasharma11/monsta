@@ -22,6 +22,8 @@ app.use("/uploads/whychoose/", express.static("uploads/whychoose/"))
 
 app.use("/uploads/subcategory/", express.static("uploads/subcategory/"))
 
+app.use("/uploads/subsubcategory/", express.static("uploads/subsubcategory/"))
+
 mongoose.connect(`mongodb://127.0.0.1:27017/ecomfurniture`)
 
     .then(async (res) => {

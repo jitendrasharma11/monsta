@@ -7,6 +7,7 @@ const { categorylRoutes } = require("./categoryRoutes")
 const {whychooseRoutes} = require("./whychooseRoutes")
 const { subcategoryRoutes } = require("./subcategoryRoutes")
 const { adminauthRoutes } = require("./adminauthRoutes")
+const { subsubcategoryRoutes } = require("./subsubcategoryRoutes")
 
 let adminRoutes=express.Router()
 
@@ -18,6 +19,7 @@ adminRoutes.use("/country",countryRoutes) //http://localhost:8000/admin/country/
 adminRoutes.use("/category/",categorylRoutes) //http://localhost:8000/admin/category/
 adminRoutes.use("/whychoose", whychooseRoutes);//http://localhost:8000/admin/whychoose/
 adminRoutes.use("/subcategory", subcategoryRoutes);//http://localhost:8000/admin/subcategory/
+adminRoutes.use("/subsubcategory", subsubcategoryRoutes);//http://localhost:8000/admin/subsubcategory/
 
 
 
