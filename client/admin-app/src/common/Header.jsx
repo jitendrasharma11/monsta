@@ -3,7 +3,7 @@ import { LuMenu } from "react-icons/lu";
 import { FiUser, FiLogOut } from 'react-icons/fi';
 import { MdBusiness } from 'react-icons/md';
 import { loginContext } from '../Context/mainContext';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 export default function Header() {
 
@@ -37,13 +37,12 @@ export default function Header() {
 
             {/* Dropdown */}
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 z-50 border-1 border-[#ccc]">
-              <a
-                href="/profile"
+              <Link to={'/profile'}
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b-1 border-[#ccc]"
               >
                 <FiUser className="mr-2 " />
                 Profile
-              </a>
+              </Link>
               <a
                 href="/company-profile"
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b-2 border-[#000000]"

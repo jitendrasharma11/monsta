@@ -22,7 +22,7 @@ export default function Login() {
       .then((finalRes) => {
         if (finalRes.status) {
           
-          setAdminID(finalRes.adminID)
+          setAdminID(finalRes.adminId)
 
         }
         else {

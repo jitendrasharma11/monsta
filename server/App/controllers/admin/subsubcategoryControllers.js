@@ -3,7 +3,7 @@ const { subcategoryModel } = require("../../models/subcategoryModel");
 const { subsubcategoryModel } = require("../../models/subsubcategoryModel");
 const fs = require("fs");
 
-// Insert
+
 let subsubcategoryInsert = async (req, res) => {
     try {
         let { subsubcategoryName, subsubcategoryOrder, parentCategory, subcategory } = req.body;
@@ -42,7 +42,7 @@ let subsubcategoryInsert = async (req, res) => {
     }
 };
 
-// View (with pagination and search)
+
 let subsubcategoryView = async (req, res) => {
     let { currentPage, limit, subsubcategoryName } = req.query;
     let searchObj = {};
@@ -71,7 +71,7 @@ let subsubcategoryView = async (req, res) => {
     });
 };
 
-// Single View
+
 let subsubcategorySingleView = async (req, res) => {
     let { id } = req.params;
     let data = await subsubcategoryModel.findOne({ _id: id });
@@ -82,7 +82,7 @@ let subsubcategorySingleView = async (req, res) => {
     });
 };
 
-// Update
+
 let subsubcategoryUpdate = async (req, res) => {
     let { id } = req.params;
     let { subsubcategoryName, subsubcategoryOrder, parentCategory, subcategory } = req.body;
@@ -119,7 +119,7 @@ let subsubcategoryUpdate = async (req, res) => {
     }
 };
 
-// Multi Delete
+
 let subsubcategoryMultiDelete = async (req, res) => {
     let { ids } = req.body;
 
@@ -137,7 +137,7 @@ let subsubcategoryMultiDelete = async (req, res) => {
     });
 };
 
-// Status Toggle
+
 let subsubcategoryStatus = async (req, res) => {
     let { ids } = req.body;
     try {
@@ -163,7 +163,7 @@ let subsubcategoryStatus = async (req, res) => {
     }
 };
 
-// For Dropdown
+
 let parentCategory = async (req, res) => {
     let data = await categoryModel.find({ categoryStatus: true }).select("categoryName");
     res.send({

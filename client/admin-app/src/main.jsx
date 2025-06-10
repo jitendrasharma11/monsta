@@ -33,9 +33,10 @@ import View_Faq from './pages/Faq/View_faq';
 import Add_Product from './pages/Product/Add_Product';
 import View_Product from './pages/Product/View_Product';
 import Order from './pages/Order/Order';
-
 import 'react-responsive-pagination/themes/classic-light-dark.css';
 import MainContext from './Context/mainContext';
+import Profile from './pages/Profile';
+import CompnayProfile from './pages/CompnayProfile';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -94,6 +95,10 @@ createRoot(document.getElementById('root')).render(
           <Route path='/view-product' element={<View_Product />} />
 
           <Route path='/order' element={<Order />} />
+
+          <Route path='/profile' element={<Profile />} />
+
+          <Route path='/company-profile' element={<CompnayProfile />} />
         </Route>
       </Routes>
     </BrowserRouter>
