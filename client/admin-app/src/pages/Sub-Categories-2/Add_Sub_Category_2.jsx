@@ -14,7 +14,7 @@ export default function Add_Sub_Category_2() {
         subsubcategoryName: '',
         subsubcategoryOrder: '',
         parentCategory: '',
-        subcategory: '',
+        subCategory: '',
         oldImage: ''
     });
 
@@ -22,7 +22,7 @@ export default function Add_Sub_Category_2() {
     const navigate = useNavigate();
     const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
-    // Dropify Setup
+  
     useEffect(() => {
         setTimeout(() => {
             if (formValue.oldImage) {
@@ -35,25 +35,24 @@ export default function Add_Sub_Category_2() {
         }, 300);
     }, [formValue.oldImage]);
 
-    // Fetch data on mount
     useEffect(() => {
         getParentCategory();
-        getSubCategory();
-
-        if (id) {
-            axios.get(`${apiBaseUrl}subsubcategory/edit-row-data/${id}`)
-                .then(res => res.data)
-                .then(finalRes => {
-                    const data = finalRes.data;
-                    setFormValue({
-                        subsubcategoryName: data.subsubcategoryName || '',
-                        subsubcategoryOrder: data.subsubcategoryOrder || '',
-                        parentCategory: data.parentCategory || '',
-                        subcategory: data.subcategory || '',
-                        oldImage: data.subsubcategoryImage ? `uploads/subsubcategory/${data.subsubcategoryImage}` : ''
+        getSubCategory().then(() => {
+            if (id) {
+                axios.get(`${apiBaseUrl}subsubcategory/edit-row-data/${id}`)
+                    .then(res => res.data)
+                    .then(finalRes => {
+                        const data = finalRes.data;
+                        setFormValue({
+                            subsubcategoryName: data.subsubcategoryName || '',
+                            subsubcategoryOrder: data.subsubcategoryOrder || '',
+                            parentCategory: data.parentCategory || '',
+                            subCategory: data.subCategory || '',
+                            oldImage: data.subsubcategoryImage ? `uploads/subsubcategory/${data.subsubcategoryImage}` : ''
+                        });
                     });
-                });
-        }
+            }
+        });
     }, [id]);
 
     const getParentCategory = () => {
@@ -63,7 +62,7 @@ export default function Add_Sub_Category_2() {
     };
 
     const getSubCategory = () => {
-        axios.get(`${apiBaseUrl}subsubcategory/subcategory`)
+        return axios.get(`${apiBaseUrl}subsubcategory/subcategory`)
             .then(res => res.data)
             .then(finalRes => setSubCatList(finalRes.data));
     };
@@ -126,18 +125,18 @@ export default function Add_Sub_Category_2() {
                                     <label className="mb-1 font-medium block">Category Image</label>
                                     <>
                                         <style>{`
-                                    .dropify-wrapper .dropify-message span {
-                                          font-weight: normal !important;
-                                     font-size: 20px !important;
-                                             }
-                                      `}</style>
-                                      <input
-                                        type="file"
-                                        name="subsubcategoryImage"
-                                        className="dropify"
-                                        data-height="250"
-                                    /></>
-                                    
+                                            .dropify-wrapper .dropify-message span {
+                                                font-weight: normal !important;
+                                                font-size: 20px !important;
+                                            }
+                                        `}</style>
+                                        <input
+                                            type="file"
+                                            name="subsubcategoryImage"
+                                            className="dropify"
+                                            data-height="250"
+                                        />
+                                    </>
                                 </div>
                                 <div className='w-[62%]'>
                                     <div className='mb-3 p-1'>
@@ -157,9 +156,9 @@ export default function Add_Sub_Category_2() {
                                     <div className='mb-3 p-1'>
                                         <label className='p-1 block font-medium text-gray-900'>Sub Category Name</label>
                                         <select
-                                            name='subcategoryName'
-                                            value={formValue.subcategory}
-                                            onChange={(e) => setFormValue({ ...formValue, subcategory: e.target.value })}
+                                            name='subCategory'
+                                            value={formValue.subCategory}
+                                            onChange={(e) => setFormValue({ ...formValue, subCategory: e.target.value })}
                                             className='text-[20px] border-2 py-2 px-2 block shadow-md border-gray-400 w-full rounded-lg focus:border-blue-500'
                                         >
                                             <option value="">Select Sub Category</option>

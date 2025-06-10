@@ -6,18 +6,18 @@ const fs = require("fs");
 
 let subsubcategoryInsert = async (req, res) => {
     try {
-        let { subsubcategoryName, subsubcategoryOrder, parentCategory, subcategory } = req.body;
+        let { subsubcategoryName, subsubcategoryOrder, parentCategory, subCategory } = req.body;
 
-
+                                                                    
         let obj = {
             subsubcategoryName,
             subsubcategoryOrder,
             parentCategory,
-            subcategory,
+            subCategory,
             subsubcategoryStatus: true
         };
 
-        console.log(obj)
+       
 
         if (req.file && req.file.filename) {
             obj.subsubcategoryImage = req.file.filename;
@@ -30,6 +30,7 @@ let subsubcategoryInsert = async (req, res) => {
             status: 1,
             msg: "Sub Subcategory Saved",
             subsubcategoryRes
+            
         });
 
     } catch (error) {
@@ -85,13 +86,13 @@ let subsubcategorySingleView = async (req, res) => {
 
 let subsubcategoryUpdate = async (req, res) => {
     let { id } = req.params;
-    let { subsubcategoryName, subsubcategoryOrder, parentCategory, subcategory } = req.body;
+    let { subsubcategoryName, subsubcategoryOrder, parentCategory, subCategory } = req.body;
 
     let updateObj = {
         subsubcategoryName,
         subsubcategoryOrder,
         parentCategory,
-        subcategory,
+        subCategory,
         subsubcategoryStatus: true
     };
 

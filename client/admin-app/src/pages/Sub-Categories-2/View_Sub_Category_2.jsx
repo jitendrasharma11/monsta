@@ -17,6 +17,9 @@ export default function View_Sub_Category_2() {
 
   const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
+
+  console.log("subsubcategory",subsubcategory)
+
   const getSubsubcategory = () => {
     axios
       .get(`${apiBaseUrl}subsubcategory/view`, {
@@ -209,7 +212,7 @@ export default function View_Sub_Category_2() {
                       />
                     </td>
                     <td className="px-6 py-4">{item.parentCategory?.categoryName || '-'}</td>
-                    <td className="px-6 py-4">{item.subcategory?.subcategoryName || '-'}</td>
+                    <td className="px-6 py-4">{item.subCategory?.subcategoryName || '-'}</td>
                     <td className="px-6 py-4">{item.subsubcategoryName}</td>
                     <td className="px-6 py-4">
                       <img
