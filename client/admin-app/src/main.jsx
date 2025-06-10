@@ -37,6 +37,7 @@ import 'react-responsive-pagination/themes/classic-light-dark.css';
 import MainContext from './Context/mainContext';
 import Profile from './pages/Profile';
 import CompnayProfile from './pages/CompnayProfile';
+import ForgotPassword from './pages/ForgotPassword';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -45,6 +46,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         {/* Login Route Outside Layout */}
         <Route path='/' element={<Login />} />
+        <Route path='/forgot-password' element={<ForgotPassword/>} />
 
         {/* All other routes inside MainLayout */}
         <Route path='/' element={<MainLayout />}>

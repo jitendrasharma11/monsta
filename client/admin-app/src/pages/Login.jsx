@@ -18,16 +18,16 @@ export default function Login() {
     event.preventDefault()
     axios.post(`${apiBaseUrl}auth/login`, obj)
       .then((res) => res.data)
-      
+
       .then((finalRes) => {
         if (finalRes.status) {
-          
+
           setAdminID(finalRes.adminId)
 
         }
         else {
           alert(finalRes.msg)
-          
+
         }
       })
   }
@@ -59,7 +59,7 @@ export default function Login() {
                 id="email"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
                 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="name@flowbite.com"
+                placeholder="example@gmail.com"
                 required
               />
             </div>
@@ -75,6 +75,11 @@ export default function Login() {
                 focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 required
               />
+            </div>
+            <div className="mb-5 text-right">
+              <Link to={'/forgot-password'} className="text-sm text-blue-600 hover:underline">
+                Forgot Password?
+              </Link>
             </div>
             <button
               type="submit"

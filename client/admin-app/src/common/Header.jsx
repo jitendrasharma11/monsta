@@ -43,13 +43,12 @@ export default function Header() {
                 <FiUser className="mr-2 " />
                 Profile
               </Link>
-              <a
-                href="/company-profile"
+              <Link to={'/company-profile'}
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b-2 border-[#000000]"
               >
                 <MdBusiness className="mr-2" />
                 Company Profile
-              </a>
+              </Link>
               <button
                 onClick={()=>setAdminID('')}
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
