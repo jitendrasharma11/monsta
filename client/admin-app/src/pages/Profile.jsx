@@ -1,14 +1,59 @@
-import React, { useEffect, useState } from 'react';
-import $ from 'jquery';
+import React, { useContext, useEffect, useState } from 'react';
+import $, { event } from 'jquery';
 import { FaMobile } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import 'dropify/dist/js/dropify.min.js';
 import 'dropify/dist/css/dropify.min.css';
 import { Link } from 'react-router-dom';
+import { loginContext } from '../Context/mainContext';
+import axios from 'axios';
 
 export default function Profile() {
 
+    let { adminID } = useContext(loginContext);
+    let [error,setError]=useState('');
+    let [msg,setMsg]=useState('')
     let [tabButton, settabButton] = useState(1);
+
+    let apiBaseUrl = import.meta.env.VITE_APIBASEURL
+
+    let changePassword = (event) => {
+        event.preventDefault()
+        let currentPassword = event.target.currentPassword.value;
+        let newPassword = event.target.newPassword.value;
+        let confirmPassword = event.target.confirmPassword.value;
+
+        if(newPassword!==confirmPassword){
+            setError("New password and confirm password do not match")
+        }
+
+        axios.post(`${apiBaseUrl}auth/change-password`, {
+            currentPassword,
+            newPassword,
+            adminID
+
+        })
+            .then((res) => res.data)
+
+            .then((finalRes) => {
+                if (finalRes.status) {
+                     setMsg(finalRes.msg)
+                    event.target.reset()
+                    setTimeout(() => {
+                        setMsg('')
+                    }, 2000);
+
+                }
+                else {
+                    setError(finalRes.msg)
+
+                    setTimeout(() => {
+                        setError('')
+                    }, 2000);
+
+                }
+            })
+    }
 
     useEffect(() => {
         $('.dropify').dropify({
@@ -106,16 +151,16 @@ export default function Profile() {
                             </form>
                         </div>
                         <div className={` mx-6 mt-5 ${tabButton == 2 ? 'block' : 'hidden'}`} >
-                            <form action="">
-
+                                {error!=''&& <p className='text-red-700 '>{error}</p>}
+                                {msg!=''&& <p className='text-green-500 '>{msg}</p>}
+                            <form onSubmit={changePassword} action="">
                                 <label htmlFor="" className='text-[16px] font-semibold'>Current Password</label>
-                                <input type="password" placeholder='Current Password' name="" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[50px] p-2 rounded-sm mb-5' />
-
+                                <input type="password" placeholder='Current Password' name="currentPassword" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[50px] p-2 rounded-sm mb-5' />
                                 <label htmlFor="" className='text-[16px] font-semibold'>New Password</label>
-                                <input type="password" placeholder='New Password' name="" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[50px] p-2 rounded-sm mb-5' />
+                                <input type="password" placeholder='New Password' name="newPassword" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[50px] p-2 rounded-sm mb-5' />
 
                                 <label htmlFor="" className='text-[16px] font-semibold'>Confirm Password</label>
-                                <input type="password" placeholder='Confirm Password' name="" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[50px] p-2 rounded-sm mt-1' />
+                                <input type="password" placeholder='Confirm Password' name="confirmPassword" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[50px] p-2 rounded-sm mt-1' />
 
                                 <button type='submit' className='my-5 text-white bg-purple-700 hover:bg-purple-800 font-medium rounded-lg px-5 py-2.5 cursor-pointer'>Change Password</button>
                             </form>

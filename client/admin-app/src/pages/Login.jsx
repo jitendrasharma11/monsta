@@ -1,11 +1,14 @@
 import axios from 'axios';
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { loginContext } from '../Context/mainContext';
+import { FaRegEye } from "react-icons/fa6";
+import { FaRegEyeSlash } from "react-icons/fa6";
 
 export default function Login() {
 
   let { adminID, setAdminID } = useContext(loginContext)
+  let [showPassword, setShowPassword] = useState(false);
 
   let navigation = useNavigate()
   let apiBaseUrl = import.meta.env.VITE_APIBASEURL
@@ -64,17 +67,24 @@ export default function Login() {
               />
             </div>
 
-            <div className="mb-5">
+            <div className="mb-5 relative">
               <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
                 Your password
               </label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
+                name="password"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
-                focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-10"
                 required
               />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute top-9 right-3 text-sm text-gray-500 cursor-pointer select-none"
+              >
+                {showPassword ? <FaRegEye className='text-2xl' /> : <FaRegEyeSlash  className='text-2xl' />}
+              </span>
             </div>
             <div className="mb-5 text-right">
               <Link to={'/forgot-password'} className="text-sm text-blue-600 hover:underline">

@@ -10,10 +10,11 @@ const {
     subsubcategoryMultiDelete,
     subsubcategoryStatus,
     parentCategory,
-    subCategory
+    subCategory,
+    activeSubSubCategory
 } = require("../../controllers/admin/subsubcategoryControllers");
 
-// Multer config for subsubcategory image upload
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "uploads/subsubcategory");
@@ -49,5 +50,7 @@ subsubcategoryRoutes.get('/parentcategory', parentCategory);
 
 
 subsubcategoryRoutes.get('/subcategory', subCategory);
+
+subsubcategoryRoutes.get('/subcategory/:parentid',subCategory)
 
 module.exports = { subsubcategoryRoutes };

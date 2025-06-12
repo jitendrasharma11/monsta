@@ -22,7 +22,6 @@ export default function Add_Sub_Category_2() {
     const navigate = useNavigate();
     const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
-  
     useEffect(() => {
         setTimeout(() => {
             if (formValue.oldImage) {
@@ -37,22 +36,28 @@ export default function Add_Sub_Category_2() {
 
     useEffect(() => {
         getParentCategory();
-        getSubCategory().then(() => {
-            if (id) {
-                axios.get(`${apiBaseUrl}subsubcategory/edit-row-data/${id}`)
-                    .then(res => res.data)
-                    .then(finalRes => {
-                        const data = finalRes.data;
-                        setFormValue({
-                            subsubcategoryName: data.subsubcategoryName || '',
-                            subsubcategoryOrder: data.subsubcategoryOrder || '',
-                            parentCategory: data.parentCategory || '',
-                            subCategory: data.subCategory || '',
-                            oldImage: data.subsubcategoryImage ? `uploads/subsubcategory/${data.subsubcategoryImage}` : ''
-                        });
+    }, []);
+
+    useEffect(() => {
+        if (id) {
+            axios.get(`${apiBaseUrl}subsubcategory/edit-row-data/${id}`)
+                .then(res => res.data)
+                .then(finalRes => {
+                    const data = finalRes.data;
+                    setFormValue({
+                        subsubcategoryName: data.subsubcategoryName || '',
+                        subsubcategoryOrder: data.subsubcategoryOrder || '',
+                        parentCategory: data.parentCategory || '',
+                        subCategory: data.subCategory || '',
+                        oldImage: data.subsubcategoryImage ? `uploads/subsubcategory/${data.subsubcategoryImage}` : ''
                     });
-            }
-        });
+
+                    // Also fetch subcategories based on saved parent
+                    if (data.parentCategory) {
+                        getSubcategory(data.parentCategory);
+                    }
+                });
+        }
     }, [id]);
 
     const getParentCategory = () => {
@@ -61,10 +66,16 @@ export default function Add_Sub_Category_2() {
             .then(finalRes => setParentCatList(finalRes.data));
     };
 
-    const getSubCategory = () => {
-        return axios.get(`${apiBaseUrl}subsubcategory/subcategory`)
+    const getSubcategory = (parentId) => {
+        axios.get(`${apiBaseUrl}subsubcategory/subcategory/${parentId}`)
             .then(res => res.data)
-            .then(finalRes => setSubCatList(finalRes.data));
+            .then(finalRes => {
+                setSubCatList(finalRes.data);
+            })
+            .catch(err => {
+                console.error("Error fetching subcategories:", err);
+                setSubCatList([]);
+            });
     };
 
     const handleSubmit = (e) => {
@@ -144,15 +155,20 @@ export default function Add_Sub_Category_2() {
                                         <select
                                             name='parentCategory'
                                             value={formValue.parentCategory}
-                                            onChange={(e) => setFormValue({ ...formValue, parentCategory: e.target.value })}
+                                            onChange={(e) => {
+                                                const selectedId = e.target.value;
+                                                setFormValue({ ...formValue, parentCategory: selectedId, subCategory: '' });
+                                                getSubcategory(selectedId);
+                                            }}
                                             className='text-[20px] border-2 py-2 px-2 block shadow-md border-gray-400 w-full rounded-lg focus:border-blue-500'
                                         >
                                             <option value="">Select Category</option>
-                                            {parentCatList.map((items, index) =>
-                                                <option key={index} value={items._id}>{items.categoryName}</option>
-                                            )}
+                                            {parentCatList.map((item, index) => (
+                                                <option key={index} value={item._id}>{item.categoryName}</option>
+                                            ))}
                                         </select>
                                     </div>
+
                                     <div className='mb-3 p-1'>
                                         <label className='p-1 block font-medium text-gray-900'>Sub Category Name</label>
                                         <select
@@ -162,11 +178,12 @@ export default function Add_Sub_Category_2() {
                                             className='text-[20px] border-2 py-2 px-2 block shadow-md border-gray-400 w-full rounded-lg focus:border-blue-500'
                                         >
                                             <option value="">Select Sub Category</option>
-                                            {subCatList.map((items, index) =>
-                                                <option key={index} value={items._id}>{items.subcategoryName}</option>
-                                            )}
+                                            {subCatList.map((item, index) => (
+                                                <option key={index} value={item._id}>{item.subcategoryName}</option>
+                                            ))}
                                         </select>
                                     </div>
+
                                     <div className='mb-3 p-1'>
                                         <label className='p-1 block font-medium text-gray-900'>Sub Subcategory Name</label>
                                         <input
@@ -178,6 +195,7 @@ export default function Add_Sub_Category_2() {
                                             placeholder='Sub Subcategory Name'
                                         />
                                     </div>
+
                                     <div className='mb-3 p-1'>
                                         <label className='p-1 block font-medium text-gray-900'>Order</label>
                                         <input

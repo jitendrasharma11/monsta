@@ -24,14 +24,14 @@ export default function View_Sub_Category_2() {
     axios
       .get(`${apiBaseUrl}subsubcategory/view`, {
         params: {
-          categoryName,
+          subsubcategoryName:categoryName,
           currentPage,
           limit,
         },
       })
       .then((res) => {
         // Debugging: Check response structure
-        console.log('API response:', res.data);
+        
 
         const finalRes = res.data;
         setSubsubcategory(finalRes.data || []);
@@ -110,6 +110,8 @@ export default function View_Sub_Category_2() {
       });
   };
 
+
+ 
   return (
     <section className="w-full px-4 py-6">
       {!activeFilter && (

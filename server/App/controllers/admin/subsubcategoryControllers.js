@@ -173,13 +173,26 @@ let parentCategory = async (req, res) => {
     });
 };
 
-let subCategory = async (req, res) => {
-    let data = await subcategoryModel.find({ subcategoryStatus: true }).select("subcategoryName");
-    res.send({
-        status: 1,
+// let subCategory = async (req, res) => {
+//     let data = await subcategoryModel.find({ subcategoryStatus: true }).select("subcategoryName");
+//     res.send({
+//         status: 1,
+//         data
+//     });
+// };
+
+let subCategory=async (req,res)=>{
+    let {parentid}=req.params; ///68374556e568bbcaa6ba031b
+    let data=await subcategoryModel.find( {parentCategory:parentid} ).select("subcategoryName")
+    let obj={
+        status:1,
         data
-    });
-};
+       
+        
+    }
+    res.send(obj)
+}
+
 
 module.exports = {
     subsubcategoryInsert,
@@ -189,5 +202,6 @@ module.exports = {
     subsubcategoryMultiDelete,
     subsubcategoryStatus,
     parentCategory,
-    subCategory
+    subCategory,
+   
 };

@@ -1,34 +1,71 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router'
 import { useEffect } from "react";
 import $ from "jquery";
 import "dropify/dist/js/dropify.min.js";
 import "dropify/dist/css/dropify.min.css";
+import axios from 'axios';
 
 export default function Add_Product() {
 
+    let [parentCatList,setParentCatList]=useState([])
+    let [subCatList,setSubCatList]=useState([])
+    let [colorList,setColorList]=useState([])
+    let [meterialList,setMeterialList]=useState([])
+
+    let apiBaseUrl=import.meta.env.VITE_APIBASEURL //http://localhost:8000/admin/
+
+    let getParentcategory=()=>{
+        axios.get(`${apiBaseUrl}product/parent-category`)
+        .then((res)=>res.data)
+        .then((finalRes)=>{
+            setParentCatList(finalRes.data)
+        })
+    }
+
+    let getSubcategory=(id)=>{
+        axios.get(`${apiBaseUrl}product/sub-category/${id}`)
+        .then((res)=>res.data)
+        .then((finalRes)=>{
+            setSubCatList(finalRes.data)
+        })
+    }
+    let getColor=()=>{
+        axios.get(`${apiBaseUrl}product/product-color`)
+        .then((res)=>res.data)
+        .then((finalRes)=>{
+            setColorList(finalRes.data)
+        })
+    }
+
+    let getMeterial=()=>{
+        axios.get(`${apiBaseUrl}product/product-meterial`)
+        .then((res)=>res.data)
+        .then((finalRes)=>{
+            setMeterialList(finalRes.data)
+        })
+    }
+
 
     useEffect(() => {
-        $(".dropify").dropify({
-            messages: {
-                default: "Drag and drop",
-                error: 'Ooops, something wrong happended.'
-            },
-            tpl: {
-                loader: '<div class="dropify-loader"></div>',
-                errorLine: '<p class="dropify-error">{{ error }}</p>',
-                message: `<div class="dropify-message"><span class="file-icon" /> <p class="text-[25px]">{{ default }}</p></div>`,
-            },
-        });
+    getParentcategory();
+    getColor()
+    getMeterial()
+}, []);
+
+useEffect(() => {
+    $(".dropify").dropify({
+        messages: {
+            default: "Drag and drop",
+            error: 'Ooops, something wrong happened.'
+        },
+        tpl: {
+            loader: '<div class="dropify-loader"></div>',
+            errorLine: '<p class="dropify-error">{{ error }}</p>',
+            message: `<div class="dropify-message"><span class="file-icon" /> <p class="text-[25px]">{{ default }}</p></div>`,
+        },
     });
-
-
-
-
-
-
-
-
+}, []);
 
     return (
         <div>
@@ -104,10 +141,9 @@ export default function Add_Product() {
                                         <select name='subCatName' className='text-[20px] border-2 py-2 px-2 block shadow-md
                                                              border-gray-400 w-full rounded-lg focus:border-blue-500'>
                                                                 <option>Select Sub Category</option>
-                                                                <option value='Mens'>Men's</option>
-                                                                <option value='Women'>Women</option>
-                                                                <option value='Mobile'>Mobile</option>
-                                                                <option value='Laptops'>Laptops</option>
+                                                                {subCatList.map((items, index) =>
+                                                <option key={index} value={items._id}>{items.subcategoryName}</option>
+                                            )}
                                                              </select>
                                     </div>
                                     <div className='mb-5 p-1'>
@@ -115,10 +151,9 @@ export default function Add_Product() {
                                         <select name='material_name' className='text-[20px] border-2 py-2 px-2 block shadow-md
                                                              border-gray-400 w-full rounded-lg focus:border-blue-500'>
                                                                 <option>Select Material</option>
-                                                                <option value='Cotton'>Cotton</option>
-                                                                <option value='Plastic'>Plastic</option>
-                                                                <option value='Diamond'>Diamond</option>
-                                                                <option value='Polyster'>Polyster</option>
+                                                                {meterialList.map((items, index) =>
+                                                <option key={index} value={items._id}>{items.materialName}</option>
+                                            )}
                                                              </select>
                                     </div>
 
@@ -161,13 +196,12 @@ export default function Add_Product() {
 
                                     <div className='mb-5 p-1'>
                                         <label for="name" className='p-1 block font-medium text-gray-900'>Select Parent Category  </label>
-                                        <select name='parentCatName' className='text-[20px] border-2 py-2 px-2 block shadow-md
+                                        <select onChange={(e)=> getSubcategory(e.target.value)} name='parentCatName' className='text-[20px] border-2 py-2 px-2 block shadow-md
                                                              border-gray-400 w-full rounded-lg focus:border-blue-500'>
                                                                 <option>Parent Category</option>
-                                                                <option value='Mens'>Men's</option>
-                                                                <option value='Women'>Women</option>
-                                                                <option value='Mobile'>Mobile</option>
-                                                                <option value='Laptops'>Laptops</option>
+                                                                {parentCatList.map((items, index) =>
+                                                <option key={index} value={items._id}>{items.categoryName}</option>
+                                            )}
                                                              </select>
                                     </div>
 
@@ -187,10 +221,9 @@ export default function Add_Product() {
                                         <select name='parentCatName' className='text-[20px] border-2 py-2 px-2 block shadow-md
                                                              border-gray-400 w-full rounded-lg focus:border-blue-500'>
                                                                 <option>Colour</option>
-                                                                <option value='Red'>Red</option>
-                                                                <option value='Blue'>Blue</option>
-                                                                <option value='Yellow'>Yellow</option>
-                                                                <option value='Pink'>Pink</option>
+                                                                {colorList.map((items, index) =>
+                                                <option key={index} value={items._id}>{items.colorName}</option>
+                                            )}
                                                              </select>
                                     </div>
 
