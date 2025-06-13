@@ -1,4 +1,5 @@
-let mongoose=require("mongoose")
+let mongoose=require("mongoose");
+const { default: slugify } = require("slugify");
 let subcategorySchema= new mongoose.Schema({
     subcategoryName:{
         type:String,
@@ -11,8 +12,14 @@ let subcategorySchema= new mongoose.Schema({
     parentCategory: {type: mongoose.Types.ObjectId, ref: "category"}, //68374556e568bbcaa6ba031b
     subcategoryImage:String,
     subcategoryOrder:Number,
-    subcategoryStatus:Boolean
+    subcategoryStatus:Boolean,
+    slug: String,
 })
+
+subcategorySchema.pre('save', function (next) {
+  this.slug = slugify(this.subcategoryName, { lower: true });
+  next();
+});
 
 let subcategoryModel=mongoose.model("subcategory",subcategorySchema)
 module.exports={subcategoryModel}

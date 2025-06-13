@@ -1,4 +1,5 @@
-let mongoose=require("mongoose")
+let mongoose=require("mongoose");
+const { default: slugify } = require("slugify");
 let productSchema= new mongoose.Schema({
     productName:{
         type:String,
@@ -29,8 +30,14 @@ let productSchema= new mongoose.Schema({
     productGallery:Array,
     productDescription:String,
     productOrder:Number,
-    productStatus:Boolean
+    productStatus:Boolean,
+    slug: String,
 })
+
+productSchema.pre('save', function (next) {
+  this.slug = slugify(this.productName, { lower: true });
+  next();
+});
 
 let productModel=mongoose.model("product",productSchema)
 module.exports={productModel}

@@ -4,6 +4,7 @@ let cors = require("cors")
 let mongoose = require("mongoose")
 const { adminRoutes } = require("./App/routes/admin/adminRoutes");
 const { adminModel } = require("./App/models/adminModel");
+const { webRoutes } = require("./App/routes/web/webRoutes");
 let app = express();
 
 app.use(cors())
@@ -13,6 +14,8 @@ app.use(express.json())
 require("dotenv").config()
 
 app.use('/admin', adminRoutes) // http://localhost:8000/admin
+
+app.use('/web', webRoutes) // http://localhost:8000/web
 
 
 app.use("/uploads/category/", express.static("uploads/category/"))
