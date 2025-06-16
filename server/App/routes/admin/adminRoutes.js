@@ -9,6 +9,8 @@ const { subcategoryRoutes } = require("./subcategoryRoutes")
 const { adminauthRoutes } = require("./adminauthRoutes")
 const { subsubcategoryRoutes } = require("./subsubcategoryRoutes")
 const { productRoutes } = require("./productRoute")
+const { companyProfileRoutes } = require("./companyProfileRoutes")
+const { testimonialsRouter } = require("./testimonialsRouter")
 
 let adminRoutes=express.Router()
 
@@ -21,7 +23,9 @@ adminRoutes.use("/category/",categorylRoutes) //http://localhost:8000/admin/cate
 adminRoutes.use("/whychoose", whychooseRoutes);//http://localhost:8000/admin/whychoose/
 adminRoutes.use("/subcategory", subcategoryRoutes);//http://localhost:8000/admin/subcategory/
 adminRoutes.use("/subsubcategory", subsubcategoryRoutes);//http://localhost:8000/admin/subsubcategory/
+adminRoutes.use("/testimonials", testimonialsRouter) //http://localhost:8000/admin/testimonials/
 adminRoutes.use("/product", productRoutes);//http://localhost:8000/admin/product/
+adminRoutes.use("/company-profile",companyProfileRoutes) //http://localhost:8000/admin/company-profile/
 
 
 

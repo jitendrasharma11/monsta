@@ -25,13 +25,12 @@ let productSchema= new mongoose.Schema({
     productActualPrice:Number,
     productsalePrice:Number,
     productStocks:Number,
-    productImage:String,
+    productImage:String, 
     productBackimage:String,
     productGallery:Array,
     productDescription:String,
     productOrder:Number,
-    productStatus:Boolean,
-    slug: String,
+    productStatus:Boolean
 })
 
 productSchema.pre('save', function (next) {
