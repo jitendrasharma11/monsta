@@ -1,6 +1,6 @@
 let express=require("express");
 const multer  = require('multer');
-const { parentCategory, subCategory, getColor, getMeterial, subsubCategory, productInsert } = require("../../controllers/admin/productController");
+const { parentCategory, subCategory, getColor, getMeterial, subsubCategory, productInsert, getProducts, getsingleProducts } = require("../../controllers/admin/productController");
 // const upload = multer({ dest: 'uploads/product' })
 let storage = multer.diskStorage({
     destination:function(req,file,cb){
@@ -41,5 +41,7 @@ productRoutes.get('/sub-category/:parentid',subCategory)
 productRoutes.get('/subsub-category/:subcategoryId', subsubCategory)
 productRoutes.get('/product-color',getColor)
 productRoutes.get('/product-meterial',getMeterial)
+productRoutes.get('/view',getProducts)
+productRoutes.get('/view/:id',getsingleProducts)
 
 module.exports={productRoutes}

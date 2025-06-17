@@ -15,7 +15,7 @@ let productSchema= new mongoose.Schema({
     productMeterial:[ {type: mongoose.Types.ObjectId, ref: "material"}],
     productColor:[ {type: mongoose.Types.ObjectId, ref: "color"}],
     productType:{
-        type:Number,
+        type:String,
         enum: ['1', '2','3'],  //1 Featured,2 New Arrival,3 OnSale
 
     },
