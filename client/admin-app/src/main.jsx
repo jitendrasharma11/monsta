@@ -87,7 +87,7 @@ createRoot(document.getElementById('root')).render(
           <Route path='/edit-country/:id' element={<Add_Country />} />
 
           <Route path='/add-testimonials' element={<Add_Testimonial />} />
-          <Route path='/add-testimonials/:id' element={<Add_Testimonial />} />
+          <Route path='/edit-testimonials/:id' element={<Add_Testimonial />} />
           <Route path='/view-testimonials' element={<View_Testimonial />} />
 
           <Route path='/add-faq' element={<Add_Faq />} />

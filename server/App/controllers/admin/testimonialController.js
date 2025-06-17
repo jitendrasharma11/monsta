@@ -1,5 +1,7 @@
 const { testimonialsModel } = require("../../models/testimonialsModel")
-let fs = require("fs")
+const fs = require("fs");
+const path = require("path");
+
 let testimonialAdd = async (req, res) => {
     let { testimonialsName, testimonialsDesignation, testimonialsRating, testimonialsOrder, testimonialsMessage } = req.body
     let obj
@@ -51,9 +53,6 @@ let testimonialsView = async (req, res) => {
     }
 
 
-    // let limit = 1
-
-    // console.log(req.query)
 
     let { currentPage, limit } = req.query
 
@@ -77,28 +76,30 @@ let testimonialsView = async (req, res) => {
 
 
 let testimonialsDelete = async (req, res) => {
-    let { ids } = req.body
+    try {
+        let { ids } = req.body;
 
+        if (!ids?.length) return res.send({ status: 0, msg: "No IDs provided" });
 
-    let testimonialImageData = await testimonialsModel.find({ _id: ids }).select("testimonialsImage")
+        let testimonialImageData = await testimonialsModel.find({ _id: { $in: ids } }).select("testimonialsImage");
 
-    // console.log(testimonialImageData)
+        testimonialImageData.forEach(v => {
+            let fileName = v?.testimonialsImage;
+            if (fileName) {
+                let deletePath = `uploads/testimonials/${fileName}`;
+                if (fs.existsSync(deletePath)) {
+                    try { fs.unlinkSync(deletePath); } catch (e) { }
+                }
+            }
+        });
 
-    for (let v of testimonialImageData) {
-        let deletePath = "uploads/testimonials/" + v.testimonialsImage
-        fs.unlinkSync(deletePath)
+        let data = await testimonialsModel.deleteMany({ _id: { $in: ids } });
+
+        res.send({ status: 1, msg: "Testimonials Deleted", data });
+    } catch (err) {
+        res.status(500).send({ status: 0, msg: "Something went wrong", error: err.message });
     }
-
-    let data = await testimonialsModel.deleteMany({ _id: ids })
-
-
-    let obj = {
-        status: 1,
-        msg: "Testimonials Deleted",
-        data
-    }
-    res.send(obj)
-}
+};
 
 let testimonialsChangeStatus = async (req, res) => {
 

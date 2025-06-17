@@ -1,110 +1,212 @@
-import React from 'react'
-import { Link } from 'react-router'
-import { useEffect } from "react";
-import $ from "jquery";
-import "dropify/dist/js/dropify.min.js";
-import "dropify/dist/css/dropify.min.css";
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router'
+import 'dropify/dist/css/dropify.min.css';
+import 'dropify/dist/js/dropify.min.js';
+import $ from 'jquery';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+export default function AddTestimonials() {
 
-export default function Add_Testimonial() {
 
-    useEffect(() => {
-        $(".dropify").dropify({
-            messages: {
-                default: "Drag and drop",
-                error: 'Ooops, something wrong happended.'
-            },
-            tpl: {
-                loader: '<div class="dropify-loader"></div>',
-                errorLine: '<p class="dropify-error">{{ error }}</p>',
-                message: `<div class="dropify-message"><span class="file-icon" /> <p class="text-[25px]">{{ default }}</p></div>`,
-            },
-        });
+
+  let apiBaseUrl = import.meta.env.VITE_APIBASEURL
+
+  let navigation = useNavigate()
+
+  let { id } = useParams()
+
+  let [staticPath, setstaticPath] = useState("")
+
+  let [testimonialsSingleData, settestimonialsSingleData] = useState({
+    testimonialsName: "",
+    testimonialsDesignation: "",
+    testimonialsRating: "",
+    testimonialsOrder: "",
+    testimonialsMessage: "",
+    testimonialsImage: ""
+  })
+
+  let testimonialsAdd = (event) => {
+    event.preventDefault()
+
+
+    let testimonialsValue = new FormData(event.target)
+
+    if (id) {
+      axios.put(`${apiBaseUrl}testimonials/edit/${id}`, testimonialsValue)
+        .then((res) => res.data)
+        .then((finalRes) => {
+          if (finalRes.status) {
+            toast.success(finalRes.msg)
+            event.target.reset()
+            $(".dropify").data('dropify').clearElement();
+            setTimeout(() => {
+              navigation("/view-testimonials")
+            }, 2000)
+          }
+          else {
+            toast.error(finalRes.msg)
+          }
+        })
+    }
+
+    else {
+      axios.post(`${apiBaseUrl}testimonials/add`, testimonialsValue)
+        .then((res) => res.data)
+        .then((finalRes) => {
+          if (finalRes.status) {
+            toast.success(finalRes.msg)
+            event.target.reset()
+            $(".dropify").data('dropify').clearElement();
+            setTimeout(() => {
+              navigation("/view-testimonials")
+            }, 2000)
+          }
+          else {
+            toast.error(finalRes.msg)
+          }
+        })
+    }
+
+  }
+
+  let testimonialsSingleView = () => {
+    axios.get(`${apiBaseUrl}testimonials/view/${id}`)
+      .then((res) => res.data)
+      .then((finalRes) => {
+        setstaticPath(finalRes.staticPath)
+        settestimonialsSingleData({
+          testimonialsName: finalRes.data.testimonialsName,
+          testimonialsOrder: finalRes.data.testimonialsOrder,
+          testimonialsDesignation: finalRes.data.testimonialsDesignation,
+          testimonialsRating: finalRes.data.testimonialsRating,
+          testimonialsMessage: finalRes.data.testimonialsMessage,
+          testimonialsImage: staticPath + finalRes.data.testimonialsImage
+        })
+      })
+  }
+
+  useEffect(() => {
+    // Initialize Dropify with custom placeholder text
+    $(".dropify").dropify({
+      messages: {
+        default: "Drag and drop", // Custom placeholder-like text
+        error: "Oops, something went wrong",
+        remove: "Remove"
+      }
     });
+  }, []);
 
+  useEffect(() => {
 
+    settestimonialsSingleData({
+      testimonialsName: "",
+      testimonialsDesignation: "",
+      testimonialsRating: "",
+      testimonialsOrder: "",
+      testimonialsMessage: "",
+      testimonialsImage: ""
+    })
 
+    if (id) {
+      testimonialsSingleView()
+
+    }
+  }, [id])
   return (
-    <div>
-                                  <section className='w-full'>
-                                    <div className='border-b-2 text-gray-300'></div>
-                                    <div className='py-3'>
-                                        <nav className='mt-1'>
-                                            <ul className='flex items-center'>
-                                                <li> <Link to={'/dashboard'}><span className='font-bold text-gray-800'>Home </span> </Link> </li>&nbsp;
-                                                <li> <Link to={'/user'}><span className='font-bold text-gray-800'>/&nbsp;Testimonial</span> </Link> </li>
-                                                <li> <span className='font-bold text-gray-800'>/&nbsp;Add</span></li>
-                                            </ul>
-                    
-                                        </nav>
-                                    </div>
-                                    <div className='border-b-2 text-gray-300'></div>
-                                    <div className='w-full min-h-[620px]'>
-                                        <div className='max-w-[1220px] mx-auto py-5'>
-                                            <h3 className='text-[26px] p-2 border rounded-t-md font-semibold border-slate-400 bg-gray-200'>Add Testimonial</h3>
-                                            <form className=' py-3 px-2 border border-t-0 rounded-b-md border-slate-400' autoComplete='off'>
-                                                <div className='flex gap-5'>
-                                                    <div className='w-[30%]'>
-                                                        <label className="mb-1">
-                                                            <b>Testimonial Image</b>
-                                                        </label>
-                                                        <input
-                                                            type="file"
-                                                            className="dropify text-[15px]"
-                                                            data-height="250"
-                                                        />
-                                                    </div>
-                                                    <div className='w-[62%]'>
-                    
-                                                        <div className='mb-3 p-1'>
-                                                            <label for="name" className='p-1 block font-medium text-gray-900'>Name </label>
-                                                            <input type='text' name='name' id='name' className='text-[20px] border-2 py-2 px-2 block shadow-md
-                                                         border-gray-400 w-full rounded-lg focus:border-blue-500' placeholder='Name' />
-                                                             
-                                                        </div>
+    <>
+      {/* <img src={testimonialsSingleData.testimonialsImage} alt="" /> */}
+      <ToastContainer />
+      <div className='w-full mx-auto text-md font-medium my-3 text-gray-700'>
+        <p className='flex items-center gap-3'>
+          <Link to={'/dashboard'} className='hover:text-blue-600'>Home</Link>
+          <Link to={'/testimonials/add'} className='hover:text-blue-600'> / &nbsp; Testimonials </Link>
+          <span className=' text-gray-500'>  / &nbsp; View </span>
+        </p>
+        <hr className="bg-[#ccc] h-px border-0 my-2" />
+      </div>
+      <section className='mt-5 max-w-full rounded-md  ' style={{ border: "1px solid #ccc" }} id='addWhyChoose'>
+        <div className=' bg-slate-100 flex p-4 justify-between items-center form-heading' style={{ borderBottom: "1px solid #ccc" }}>
+          <h3 className='text-[26px] font-semibold'>Add Testimonials</h3>
+        </div>
+        <div>
+          <form onSubmit={testimonialsAdd} action="" className='p-2'>
+            <div className='grid grid-cols-[35%_auto] gap-5'>
+              <div className='' >
+                <label htmlFor="" className='text-[16px] font-semibold'>Testimonials Image</label>
+                <div>
+                  <input
 
-                                                        <div className='mb-3 p-1'>
-                                                            <label for="designation" className='p-1 block font-medium text-gray-900'>Designation</label>
-                                                            <input type='text' name='designation' id='designation' className='text-[20px] border-2 py-2 px-2 block shadow-md
-                                                         border-gray-400 w-full rounded-lg focus:border-blue-500' placeholder='Designation' />
-                                                        </div>
+                    name="testimonialsImage"
+                    type="file"
+                    className="dropify"
+                    data-height="250"
+                    data-default-file={testimonialsSingleData.testimonialsImage}
+                  />
+                </div>
+              </div>
+              <div>
 
-                                                        <div className='mb-3 p-1'>
-                                                            <label for="rating" className='p-1 block font-medium text-gray-900'>Rating </label>
-                                                            
-                                                            <input type='number' name='rating' id='rating' className='text-[20px] border-2 py-2 px-2 block shadow-md
-                                                         border-gray-400 w-full rounded-lg focus:border-blue-500' placeholder='Rating ' />
-                                                        </div>
-                                                        <div className='mb-3 p-1'>
-                                                            <label for="order" className='p-1 block font-medium text-gray-900'>Order</label>
-                                                            <input type='number' name='order' id='order' className='text-[20px] border-2 py-2 px-2 block shadow-md
-                                                         border-gray-400 w-full rounded-lg focus:border-blue-500' placeholder='Order' />
-                                                        </div>
-                                                        <div className='mb-3 p-1'>
-                                                            <label for="message" className='p-1 block font-medium text-gray-900'>Message</label>
-                                                        <textarea name='message' id='message' className='text-[20px] border-2 py-2 px-2 block shadow-md
-                                                         border-gray-400 w-full rounded-lg focus:border-blue-500' placeholder='Message' />
-                                                        </div>
-                    
-                                                       
-                    
-                                                    </div>
-                                                </div>
-                    
-                                                <button className='text-white bg-purple-500 hover:bg-purple-700 font-medium rounded-lg py-3 px-2 my-3 mx-1.5'>Add Testimonial
-                    
-                                                </button>
-                                            </form>
-                                        </div>
-                    
-                                    </div>
-                    
-                    
-                                </section>
+                <label htmlFor="" className='text-[16px] font-semibold'>Name</label>
+                <input type="text" value={testimonialsSingleData.testimonialsName} placeholder='Name' name="testimonialsName" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[40px] p-2 rounded-sm mb-5'
+
+                  onChange={(e) => {
+                    let obj = { ...testimonialsSingleData };
+                    obj['testimonialsName'] = e.target.value;
+                    settestimonialsSingleData(obj);
+                  }}
+
+                />
+
+                <label htmlFor="" className='text-[16px] font-semibold'>Designation</label>
+                <input type="text" value={testimonialsSingleData.testimonialsDesignation} placeholder='Designation' name="testimonialsDesignation" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[40px] p-2 rounded-sm mb-5'
+
+                  onChange={(e) => {
+                    let obj = { ...testimonialsSingleData };
+                    obj['testimonialsDesignation'] = e.target.value;
+                    settestimonialsSingleData(obj);
+                  }}
+
+                />
 
 
+                <label htmlFor="" className='text-[16px] font-semibold'>Rating</label>
+                <input type="number" value={testimonialsSingleData.testimonialsRating} placeholder='Rating' name="testimonialsRating" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[40px] p-2 rounded-sm mb-5'
+                  onChange={(e) => {
+                    let obj = { ...testimonialsSingleData };
+                    obj['testimonialsRating'] = e.target.value;
+                    settestimonialsSingleData(obj);
+                  }}
+
+                />
+
+                <label htmlFor="" className='text-[16px] font-semibold'>Order</label>
+                <input type="number" value={testimonialsSingleData.testimonialsOrder} placeholder='Order' name="testimonialsOrder" id="" className='text-sm w-full border-2 shadow-sm border-gray-300 h-[40px] p-2 rounded-sm mb-5'
+                  onChange={(e) => {
+                    let obj = { ...testimonialsSingleData };
+                    obj['testimonialsOrder'] = e.target.value;
+                    settestimonialsSingleData(obj);
+                  }}
+                />
+
+                <label htmlFor="" className='text-[16px] font-semibold'>Message</label>
+                <textarea name='testimonialsMessage' value={testimonialsSingleData.testimonialsMessage} className='text-sm w-full border-2 shadow-sm resize-none  border-gray-300 h-[100px] p-2 rounded-sm mt-1'
+
+                  onChange={(e) => {
+                    let obj = { ...testimonialsSingleData };
+                    obj['testimonialsMessage'] = e.target.value;
+                    settestimonialsSingleData(obj);
+                  }}
+                />
+              </div>
+            </div>
 
 
-    </div>
+            <button className='text-white bg-purple-700 border-0 my-5 rounded-sm p-2 cursor-pointer'>{id ? "Update" : "Add"} Testimonial</button>
+          </form>
+
+        </div>
+      </section>
+    </>
   )
 }
-export{Add_Testimonial}
