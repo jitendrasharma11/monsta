@@ -17,13 +17,13 @@ export default function Footer() {
                             <nav>
                                 <ul>
                                     <li className='my-1'>
-                                        <p className='text-sm '>Address: Claritas est etiam processus dynamicus</p>
+                                        <p className='text-sm '>Address: Dhanbad,Jharkhand</p>
                                     </li>
                                     <li className='my-1'>
-                                        <p className='text-sm '>Phone: 9781234560</p>
+                                        <p className='text-sm '>Phone: +918540064060</p>
                                     </li>
                                     <li className='my-1'>
-                                        <p className='text-sm '>Email: furniture@gmail.com</p>
+                                        <p className='text-sm '>Email: jitendrasharma30990@gmail.com</p>
                                     </li>
                                     <li className='my-2 flex gap-2' id='socialMedia-icon'>
                                         <div className='w-[30px] h-[30px] rounded-[50%] border-1 border-gray-700 flex justify-center items-center'>

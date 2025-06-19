@@ -49,7 +49,7 @@ export default function Header() {
                         </div>
 
                         <div className='max-w-full flex flex-col text-center item-center   ' id='header-mid-top'>
-                            <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-9781234560  </Link>
+                            <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-8540064060  </Link>
                             { user ?
                                 <button className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer'>Logout</button>
                                 :
@@ -372,7 +372,7 @@ export default function Header() {
 
                 <div className='max-w-[1320px] lg:mx-auto sm:mx-2 mx-2 ' id='header-mid'>
                     <div className='max-w-full lg:flex justify-between item-center  hidden ' id='header-mid-top'>
-                        <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-9781234560 / furniture@gmail.com </Link>
+                        <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-8540064060 / jitendrasharma30990@gmail.com </Link>
                         <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer '>Login / Register</Link>
                     </div>
                 </div>
