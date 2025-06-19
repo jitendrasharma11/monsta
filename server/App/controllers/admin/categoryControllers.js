@@ -96,6 +96,7 @@ let categorySingleView = async (req, res) => {
     let obj = {
         status: 1,
         msg: "sinlge category",
+        staticPath: process.env.CATEGORYiMAGEPATH,
         data
     }
     res.send(obj)

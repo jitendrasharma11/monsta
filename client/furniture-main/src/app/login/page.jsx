@@ -1,17 +1,42 @@
-"use client"
-import { redirect } from 'next/dist/server/api-utils';
+'use client';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import React from 'react'
 import { FaAngleRight } from "react-icons/fa";
+import { useDispatch } from 'react-redux';
+import { userData } from '../slice/userSlice';
 export default function login() {
+
+    const router = useRouter();
+    let dispatch = useDispatch()
 
     let dashBoard = () => {
         window.location.href = '/my-dashboard'
     }
-    let apiBaseUrl=process.env.NEXT_PUBLIC_APIBASEURL
+    let apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL
 
-    let userRegister=(e)=>{
-        console.log(apiBaseUrl)
+    let userRegister = (e) => {
+        let formValue=new FormData(e.target)
+        axios.post(`${apiBaseUrl}user/register`,formValue)
+        .then((res)=>{
+            console.log(res.data)
+        })
+        e.preventDefault()
+
+    }
+    let Login = (e) => {
+        let formValue=new FormData(e.target)
+        axios.post(`${apiBaseUrl}user/login`,formValue)
+        .then((res)=>{
+            if(res.data.status){
+                dispatch(userData({user:res.data.user}))
+                router.push('/my-dashboard');
+            }
+            else{
+                alert(res.data.msg)
+            }
+        })
         e.preventDefault()
 
     }
@@ -36,14 +61,14 @@ export default function login() {
                             <h2 className='capitalize text-3xl'>login</h2>
 
                             <div className='border-1 border-gray-200 rounded-sm my-5 p-5'>
-                                <form action="">
+                                <form onSubmit={Login} action="">
                                     <label htmlFor="" className=''>Email</label>&nbsp;<span className='font-bold'>*</span>
                                     <input className='w-full border-1 border-gray-300 px-4 py-2 my-3' name='email' placeholder='Email Address' type="email" />
                                     <label htmlFor="" className='my-5'>Password</label>&nbsp;<span className='font-bold'>*</span>
-                                    <input className='w-full border-1 border-gray-300 px-4 py-2 my-2' name='email' placeholder='Password' type="password" />
+                                    <input className='w-full border-1 border-gray-300 px-4 py-2 my-2' name='password' placeholder='Password' type="password" />
                                     <div className='my-5 flex items-center justify-between'>
                                         <p className='text-[#C09578] text-sm hover:cursor-pointer'>Lost Your Password?</p>
-                                        <button className='text-white font-semibold bg-[#C09578] px-5 py-1 rounded-2xl cursor-pointer hover:text-white hover:bg-black' onClick={()=>dashBoard}>Login</button>
+                                        <button className='text-white font-semibold bg-[#C09578] px-5 py-1 rounded-2xl cursor-pointer hover:text-white hover:bg-black' onClick={() => dashBoard}>Login</button>
                                     </div>
 
                                 </form>
@@ -54,15 +79,49 @@ export default function login() {
 
                             <div className='border-1 border-gray-200 rounded-sm my-5 p-5'>
                                 <form onSubmit={userRegister} action="">
-                                    <label htmlFor="" className=''>Email Address</label>&nbsp;<span className='font-bold'>*</span>
-                                    <input className='w-full border-1 border-gray-300 px-4 py-2 my-3' name='email' placeholder='Email Address' type="email" />
-                                    <label htmlFor="" className='my-5'>Password</label>&nbsp;<span className='font-bold'>*</span>
-                                    <input className='w-full border-1 border-gray-300 px-4 py-2 my-2' name='email' placeholder='Password' type="password" />
+
+                                    <label className=''>Full Name</label>&nbsp;<span className='font-bold'>*</span>
+                                    <input
+                                        className='w-full border-1 border-gray-300 px-4 py-2 my-3'
+                                        name='name'
+                                        placeholder='Full Name'
+                                        type="text"
+                                        required
+                                    />
+
+                                    <label className=''>Mobile Number</label>&nbsp;<span className='font-bold'>*</span>
+                                    <input
+                                        className='w-full border-1 border-gray-300 px-4 py-2 my-3'
+                                        name='number'
+                                        placeholder='Mobile Number'
+                                        type="tel"
+                                        pattern="[0-9]{10}"
+                                        required
+                                    />
+
+                                    <label className=''>Email Address</label>&nbsp;<span className='font-bold'>*</span>
+                                    <input
+                                        className='w-full border-1 border-gray-300 px-4 py-2 my-3'
+                                        name='email'
+                                        placeholder='Email Address'
+                                        type="email"
+                                        required
+                                    />
+
+                                    <label className=''>Password</label>&nbsp;<span className='font-bold'>*</span>
+                                    <input
+                                        className='w-full border-1 border-gray-300 px-4 py-2 my-3'
+                                        name='password'
+                                        placeholder='Password'
+                                        type="password"
+                                        required
+                                    />
+
                                     <div className='my-5 flex items-center justify-end'>
-
-                                        <button className='text-white font-semibold bg-[#C09578] px-5 py-1 rounded-2xl cursor-pointer hover:text-white hover:bg-black'>Register</button>
+                                        <button className='text-white font-semibold bg-[#C09578] px-5 py-1 rounded-2xl cursor-pointer hover:text-white hover:bg-black'>
+                                            Register
+                                        </button>
                                     </div>
-
                                 </form>
                             </div>
                         </div>

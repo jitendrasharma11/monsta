@@ -11,7 +11,6 @@ export default function Add_Category() {
     const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
     const navigate = useNavigate();
     const { id } = useParams();
-
     const [formValue, setFormValue] = useState({
         categoryName: '',
         categoryOrder: '',
@@ -32,7 +31,7 @@ export default function Add_Category() {
 
                     setTimeout(() => {
                         $('.dropify').dropify({
-                            defaultFile: `${apiBaseUrl}${data.categoryImage}`
+                            defaultFile: `${finalRes.staticPath + data.categoryImage}`
                         });
                     }, 200);
                 });

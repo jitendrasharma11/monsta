@@ -1,6 +1,13 @@
 const { companyModel } = require("../../models/compnayProfileModel")
-let fs=require("fs")
+let fs = require("fs")
+require("dotenv").config();
+
+let staticPath= process.env.COMPANYIMAGEPATH
+
+// console.log(staticPath)
+
 let companyProfileAdd = async (req, res) => {
+
     let { companyName, companyEmail, companyMobileNumber, companyFacebookLink, companyAddress, companyInstagrmaLink, companyYoutubeLink, companyMapLink } = req.body
 
     let obj
@@ -46,6 +53,7 @@ let companyProfileView = async (req, res) => {
 
     let obj = {
         status: 1,
+        staticPath,
         msg: "Company Profile Viewed",
         data
     }
@@ -53,9 +61,9 @@ let companyProfileView = async (req, res) => {
 }
 
 let companyProfileEdit = async (req, res) => {
-    let {id}=req.query
+    let { id } = req.query
     console.log(id)
-    let {  companyName, companyEmail, companyMobileNumber, companyFacebookLink, companyAddress, companyInstagrmaLink, companyYoutubeLink, companyMapLink } = req.body
+    let { companyName, companyEmail, companyMobileNumber, companyFacebookLink, companyAddress, companyInstagrmaLink, companyYoutubeLink, companyMapLink } = req.body
     let companyProfileInsert = {
         companyName,
         companyEmail,
@@ -84,6 +92,7 @@ let companyProfileEdit = async (req, res) => {
         obj = {
             status: 1,
             msg: "Company Profile Updated",
+            staticPath: process.env.COMPANYIMAGEPATH,
             data
         }
         res.send(obj)
@@ -97,4 +106,4 @@ let companyProfileEdit = async (req, res) => {
     }
 }
 
-module.exports = { companyProfileAdd, companyProfileView ,companyProfileEdit}
+module.exports = { companyProfileAdd, companyProfileView, companyProfileEdit }

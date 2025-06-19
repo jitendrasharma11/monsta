@@ -20,21 +20,6 @@ export default function Add_Sub_Category() {
     const navigate = useNavigate();
     const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
 
-    // Dropify setup
-    useEffect(() => {
-        if (formValue.oldImage) {
-            setTimeout(() => {
-                $('.dropify').dropify({
-                    defaultFile: `${apiBaseUrl}${formValue.oldImage}`
-                });
-            }, 300);
-        } else {
-            setTimeout(() => {
-                $('.dropify').dropify();
-            }, 300);
-        }
-    }, [formValue.oldImage]);
-
     useEffect(() => {
         getParentCategory();
 
@@ -43,13 +28,31 @@ export default function Add_Sub_Category() {
                 .then(res => res.data)
                 .then(finalRes => {
                     const data = finalRes.data;
+
                     setFormValue({
                         subcategoryName: data.subcategoryName,
                         subcategoryOrder: data.subcategoryOrder,
                         parentCategory: data.parentCategory,
                         oldImage: data.subcategoryImage
                     });
+
+                    setTimeout(() => {
+                        const dropifyElement = $('.dropify');
+
+                        const drEvent = dropifyElement.data('dropify');
+                        if (drEvent) {
+                            drEvent.destroy();
+                        }
+
+                        dropifyElement.attr('data-default-file', `${finalRes.staticPath}${data.subcategoryImage}`);
+                        console.log(finalRes.staticPath + data.subcategoryImage)
+                        dropifyElement.dropify();
+                    }, 300);
                 });
+        } else {
+            setTimeout(() => {
+                $('.dropify').dropify();
+            }, 300);
         }
     }, [id]);
 
@@ -82,7 +85,13 @@ export default function Add_Sub_Category() {
                     if (finalRes.status) {
                         toast.success(finalRes.msg || "Added successfully");
                         e.target.reset();
-                        $('.dropify').data('dropify').clearElement();
+
+                        const dropify = $('.dropify').data('dropify');
+                        if (dropify) {
+                            dropify.resetPreview();
+                            dropify.clearElement();
+                        }
+
                         setTimeout(() => navigate('/view-Sub-category'), 2000);
                     } else {
                         toast.error(finalRes.msg || "Something went wrong");
@@ -90,7 +99,7 @@ export default function Add_Sub_Category() {
                 });
         }
     };
-    
+
     return (
         <div>
             <ToastContainer />
@@ -113,20 +122,18 @@ export default function Add_Sub_Category() {
                             <div className='flex gap-5'>
                                 <div className='w-[30%]'>
                                     <label className="mb-1 font-medium block">Subcategory Image</label>
-                                    <>
-                                        <style>{`
-                                    .dropify-wrapper .dropify-message span {
-                                          font-weight: normal !important;
-                                     font-size: 20px !important;
-                                             }
-                                      `}</style>
-                                        <input
-                                            type="file"
-                                            name="subcategoryImage"
-                                            className="dropify"
-                                            data-height="250"
-                                        />
-                                    </>
+                                    <style>{`
+                                        .dropify-wrapper .dropify-message span {
+                                            font-weight: normal !important;
+                                            font-size: 20px !important;
+                                        }
+                                    `}</style>
+                                    <input
+                                        type="file"
+                                        name="subcategoryImage"
+                                        className="dropify"
+                                        data-height="250"
+                                    />
                                 </div>
                                 <div className='w-[62%]'>
                                     <div className='mb-3 p-1'>

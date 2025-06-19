@@ -31,6 +31,8 @@ app.use("/uploads/product",express.static("uploads/product"))
 
 app.use("/uploads/testimonials",express.static("uploads/testimonials"))
 
+app.use("/uploads/companyProfile",express.static("uploads/companyProfile"))
+
 mongoose.connect(`mongodb://127.0.0.1:27017/ecomfurniture`)
 
     .then(async (res) => {

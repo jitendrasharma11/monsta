@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import React, { useState } from 'react'
 import { IoIosSearch } from "react-icons/io";
 import { FaHeart } from "react-icons/fa";
@@ -8,7 +8,11 @@ import { FaAngleUp } from "react-icons/fa6";
 import { IoMdClose } from "react-icons/io";
 import Link from 'next/link';
 import { CiMenuBurger } from "react-icons/ci";
+import { useSelector } from 'react-redux';
 export default function Header() {
+
+    let user = useSelector((store) => store.login.user)
+    console.log(user)
 
     let [mobileNav, setmobileNav] = useState(false)
 
@@ -46,7 +50,12 @@ export default function Header() {
 
                         <div className='max-w-full flex flex-col text-center item-center   ' id='header-mid-top'>
                             <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-9781234560  </Link>
-                            <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer ' onClick={() => setmobileNav(false)}>Login / Register </Link>
+                            { user ?
+                                <button className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer'>Logout</button>
+                                :
+                                <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer' onClick={() => setmobileNav(false)}>Login / Register</Link>
+                            }
+
                         </div>
                         <ul className='flex lg:gap-8 sm:gap-8 gap-5 w-full justify-center items-center  lg:flex-row flex-col'>
                             <li className=' lg:w-auto  lg:border-0  border-b w-full lg:pb-0  pb-1 border-gray-300' >
@@ -57,7 +66,7 @@ export default function Header() {
                             <li className='lg:w-auto  group   w-full lg:pb-0  pb-1 border-gray-300'>
                                 <Link href={'/'} className='group-hover:text-[#c09578] font-semibold uppercase text-[#212121] text-sm flex items-center gap-2 border-b border-gray-300 pb-2 justify-between' onClick={() => {
                                     setsofaMenu(false),
-                                    setpageMenu(false)
+                                        setpageMenu(false)
                                     setlivingMenu(!livingMenu)
                                 }}>
                                     living

@@ -12,15 +12,19 @@ const {
     parentCategory
 } = require("../../controllers/admin/subcategoryControllers");
 
-// Multer storage config for subcategory images
 const storage = multer.diskStorage({
     destination: function(req, file, cb){
         cb(null, "uploads/subcategory");
     },
     filename: function(req, file, cb){
-        cb(null, `${Date.now()}-${file.originalname}`);
+        const ext = path.extname(file.originalname);
+        const base = path.basename(file.originalname, ext)
+            .replace(/\s+/g, "-")
+            .replace(/[^a-zA-Z0-9\-]/g, "");
+        cb(null, `${Date.now()}-${base}${ext}`);
     }
 });
+
 const upload = multer({ storage: storage });
 
 let subcategoryRoutes = express.Router();
