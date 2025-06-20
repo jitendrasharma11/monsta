@@ -30,7 +30,7 @@ export default function login() {
         axios.post(`${apiBaseUrl}user/login`,formValue)
         .then((res)=>{
             if(res.data.status){
-                dispatch(userData({user:res.data.user}))
+                dispatch(userData({user:res.data.user,token:res.data.token}))
                 router.push('/my-dashboard');
             }
             else{

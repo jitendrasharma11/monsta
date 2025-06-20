@@ -3,33 +3,37 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 import { FaAngleRight } from "react-icons/fa";
 import { Country } from '../data/Country';
-export default function page() {
+export default function Dashboard() {
     let [dashBoardButton, setdashBoardButton] = useState(1)
 
     let [countryBillingTitle, setcountryBillingTitle] = useState("Select Country")
-    
-     let [countryBillingButton, setcountryBillingButton] = useState(false)
+
+    let [countryBillingButton, setcountryBillingButton] = useState(false)
 
     let [countryShippingTitle, setcountryShippingTitle] = useState("Select Country")
 
-   
+
 
     let [countryShippingButton, setcountryShippingButton] = useState(false)
 
     return (
         <>
-            <section className='max-w-full my-8' id='my-dashboard'>
-                <div className='max-w-[1320px] lg:mx-auto mx-2' id='mydashboard-mid'>
-                    <div className='w-full text-center' id='muAccount-mid-heading'>
-                        <h2 className=' lg:text-4xl sm:text-text-4xl text-2xl font-semibold'>My Dashboard</h2>
-                        <div className='flex items-center justify-center gap2 lg:my-3 sm:my-3 my-2 '>
-
-                            <Link href={'/'} className='text-sm hover:text-[#C09578]'>Home</Link>
-                            <FaAngleRight className='text-[#C09578]' />
-                            <Link href={'/my-dashboard'} className='text-sm text-[#C09578]'> My Dashboard </Link >
-
+            <section className="max-w-full my-8" id="my-dashboard">
+                <div className="max-w-[1320px] lg:mx-auto mx-2" id="mydashboard-mid">
+                    <div className="w-full text-center" id="muAccount-mid-heading">
+                        <h2 className="lg:text-4xl sm:text-4xl text-2xl font-semibold">
+                            My Dashboard
+                        </h2>
+                        <div className="flex items-center justify-center gap-2 lg:my-3 sm:my-3 my-2">
+                            <Link href="/" className="text-sm hover:text-[#C09578]">
+                                Home
+                            </Link>
+                            <FaAngleRight className="text-[#C09578]" />
+                            <Link href="/my-dashboard" className="text-sm text-[#C09578]">
+                                My Dashboard
+                            </Link>
                         </div>
-                        <hr className='border-gray-200 my-5' />
+                        <hr className="border-gray-200 my-5" />
                     </div>
                 </div>
             </section>
@@ -226,7 +230,7 @@ export default function page() {
                                 <h3 className='lg:text-xl text-base font-semibold'>My Profile</h3>
                                 <div className='w-full border-1 border-gray-300 rounded-sm my-2 p-4' id='billing-form'>
                                     <form action="">
-                                        <input type="radio" name='gender' checked
+                                        <input type="radio" name='gender' defaultChecked
                                         /> <label htmlFor="" className='font-semibold'>Mr.</label>&nbsp;&nbsp;&nbsp;<input name='gender' type="radio" /> <label htmlFor="" className='font-semibold'>Mrs.</label>
                                         <br />
                                         <br />

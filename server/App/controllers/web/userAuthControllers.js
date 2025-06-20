@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const { userModel } = require('../../models/userModel');
+let jwt = require('jsonwebtoken');
 const saltRounds = 10;
 
 let register = async (req, res) => {
@@ -51,10 +52,13 @@ let login = async (req, res) => {
                 _id: cheakEmail._id
             }
 
+            let token = jwt.sign(user,process.env.TOKENKEY);
+
             myRes = {
                 status: 1,
                 msg: "login Success",
-                user
+                user,
+                token
             }
         }
         else {

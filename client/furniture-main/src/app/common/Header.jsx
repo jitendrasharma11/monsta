@@ -8,10 +8,13 @@ import { FaAngleUp } from "react-icons/fa6";
 import { IoMdClose } from "react-icons/io";
 import Link from 'next/link';
 import { CiMenuBurger } from "react-icons/ci";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { logOut } from '../slice/userSlice';
 export default function Header() {
 
     let user = useSelector((store) => store.login.user)
+
+    let dispatch=useDispatch()
     console.log(user)
 
     let [mobileNav, setmobileNav] = useState(false)
@@ -373,7 +376,14 @@ export default function Header() {
                 <div className='max-w-[1320px] lg:mx-auto sm:mx-2 mx-2 ' id='header-mid'>
                     <div className='max-w-full lg:flex justify-between item-center  hidden ' id='header-mid-top'>
                         <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-8540064060 / jitendrasharma30990@gmail.com </Link>
+                        {user ?
+                        <button onClick={()=>{
+                            dispatch(logOut())
+                        }}>Logout</button>
+                        :
                         <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer '>Login / Register</Link>
+                        }
+                        
                     </div>
                 </div>
                 <hr className='h-px bg-gray-200 border-0 lg:block  hidden' />
