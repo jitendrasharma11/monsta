@@ -16,7 +16,7 @@ export const loginSlice = createSlice({
         state.user=payload.user
         state.token=payload.token
         Cookies.set('USER',JSON.stringify(state.user))
-        Cookies.set('TOKEN',JSON.stringify(state.token))
+        Cookies.set('TOKEN',state.token)
     },
 
     logOut: (state) => {

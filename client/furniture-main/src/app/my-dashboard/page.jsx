@@ -3,7 +3,13 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 import { FaAngleRight } from "react-icons/fa";
 import { Country } from '../data/Country';
+import { useSelector } from 'react-redux';
+import { store } from '../store/store';
+import axios from 'axios';
 export default function Dashboard() {
+
+    let token=useSelector((store)=>store.login.token)
+
     let [dashBoardButton, setdashBoardButton] = useState(1)
 
     let [countryBillingTitle, setcountryBillingTitle] = useState("Select Country")
@@ -15,6 +21,35 @@ export default function Dashboard() {
 
 
     let [countryShippingButton, setcountryShippingButton] = useState(false)
+
+    let apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL
+
+    let changePassword=(e)=>{
+
+        let oldPassword=e.target.oldPassword.value
+        let newPassword=e.target.newPassword.value
+        let confirmPassword=e.target.confirmPassword.value
+
+        console.log(token)
+        console.log(oldPassword,newPassword,confirmPassword)
+
+        let obj={
+            oldPassword,
+            newPassword,
+            confirmPassword
+        }
+
+        axios.post(`${apiBaseUrl}user/change-password`,obj,{
+            headers:{
+                Authorization:`Bearer ${token}`
+            }
+        })
+        .then((res)=>{
+            console.log(res.data)
+        })
+
+        e.preventDefault()
+    }
 
     return (
         <>
@@ -259,17 +294,17 @@ export default function Dashboard() {
                             <div className={`${dashBoardButton == 5 ? 'block' : 'hidden'}`} id='cahngePassword'>
                                 <h3 className='lg:text-xl text-base font-semibold'>Change Password</h3>
                                 <div className='w-full border-1 border-gray-300 rounded-sm my-2 p-4' id='changePassword-form'>
-                                    <form action="">
+                                    <form onSubmit={changePassword} action="">
                                         <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Current Password</label>
-                                        <input type="password" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
+                                        <input name='oldPassword' type="password" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
 
 
                                         <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>New Password</label>
-                                        <input type="password" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
+                                        <input name='newPassword' type="password" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
 
 
                                         <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Confirm Password</label>
-                                        <input type="tel" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
+                                        <input name='confirmPassword' type="password" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
 
 
 

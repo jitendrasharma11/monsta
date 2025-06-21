@@ -77,4 +77,9 @@ let login = async (req, res) => {
     res.send(myRes)
 }
 
-module.exports = { register, login };
+let changePassword=(req,res)=>{
+    console.log(req.body)
+    res.send("Hello")
+}
+
+module.exports = { register, login, changePassword };
