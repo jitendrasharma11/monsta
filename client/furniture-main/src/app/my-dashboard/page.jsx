@@ -44,6 +44,8 @@ export default function Dashboard() {
                     userName: data.userName || '',
                     userEmail: data.userEmail || '',
                     userPhone: data.userPhone || '',
+                    address: data.userAddress || '',
+                    gender: data.userGender || '',
                 });
             })
     }
@@ -88,8 +90,6 @@ export default function Dashboard() {
     let editProfile = (e) => {
         e.preventDefault()
 
-
-
         let userObj = {
             name: e.target.userName.value,
             address: e.target.address.value,
@@ -112,8 +112,6 @@ export default function Dashboard() {
             .catch((err) => {
                 console.error(err);
             })
-
-
     }
 
     return (
@@ -330,9 +328,22 @@ export default function Dashboard() {
                                 <h3 className='lg:text-xl text-base font-semibold'>My Profile</h3>
                                 <div className='w-full border-1 border-gray-300 rounded-sm my-2 p-4' id='billing-form'>
                                     <form onSubmit={editProfile} action="">
-                                        <input type="radio" name='gender' value={'male'} defaultChecked /> <label className='font-semibold'>Mr.</label>
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="male"
+                                            checked={userData.gender === 'male'}
+                                            onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
+                                        />
+                                        <label className='font-semibold'>Mr.</label>
                                         &nbsp;&nbsp;&nbsp;
-                                        <input name='gender' type="radio" value={'female'} /> <label className='font-semibold'>Mrs.</label>
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="female"
+                                            checked={userData.gender === 'female'}
+                                            onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
+                                        /> <label className='font-semibold'>Mrs.</label>
                                         <br /><br />
 
                                         <label className='text-sm font-semibold hover:text-[#C09578]'>Name*</label>
