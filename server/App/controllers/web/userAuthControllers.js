@@ -52,7 +52,7 @@ let login = async (req, res) => {
                 _id: cheakEmail._id
             }
 
-            let token = jwt.sign(user,process.env.TOKENKEY);
+            let token = jwt.sign(user, process.env.TOKENKEY);
 
             myRes = {
                 status: 1,
@@ -77,9 +77,73 @@ let login = async (req, res) => {
     res.send(myRes)
 }
 
-let changePassword=(req,res)=>{
-    console.log(req.body)
-    res.send("Hello")
+let changePassword = async (req, res) => {
+    let resObj
+
+    let { oldPassword, newPassword, confirmPassword, userId } = req.body
+    let userData = await userModel.findOne({ _id: userId })
+    let dbPassword = userData.userPassword //DB Password
+    if (bcrypt.compareSync(oldPassword, dbPassword)) {
+
+        if (newPassword == confirmPassword) {
+            //change password
+            const hashPassword = bcrypt.hashSync(newPassword, saltRounds);
+            await userModel.updateOne({ _id: userId }, {
+                $set: {
+                    userPassword: hashPassword
+                }
+            })
+            resObj = {
+                status: 1,
+                msg: "Password Changed"
+            }
+        }
+        else {
+            resObj = {
+                status: 0,
+                msg: "New Password or old Password Not Match"
+            }
+        }
+
+    }
+    else {
+        resObj = {
+            status: 0,
+            msg: "Invalid old password"
+        }
+    }
+
+    res.send(resObj)
+}
+let getUser = async (req, res) => {
+    let { userId } = req.body
+    let userData = await userModel.findOne({ _id: userId })
+    resObj = {
+        status: 0,
+        userData
+    }
+    res.send(resObj)
 }
 
-module.exports = { register, login, changePassword };
+let updateUserProfile = async (req, res) => {
+    try {
+         let { userId, address, name, gender } = req.body
+         console.log(req.body)
+
+        await userModel.updateOne({ _id: userId }, {
+            $set: {
+                userAddress: address,
+                userName: name,
+                userGender: gender
+            }
+        });
+
+        res.json({ status: 1, msg: "Profile updated successfully" });
+
+    } catch (err) {
+        console.error("Update Error:", err);
+        res.status(500).json({ status: 0, msg: "Server error" });
+    }
+};
+
+module.exports = { register, login, changePassword, getUser, updateUserProfile };

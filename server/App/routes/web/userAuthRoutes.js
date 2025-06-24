@@ -1,5 +1,5 @@
-let express=require("express");
-const { register, login, changePassword } = require("../../controllers/web/userAuthControllers");
+let express = require("express");
+const { register, login, changePassword, getUser, updateUserProfile } = require("../../controllers/web/userAuthControllers");
 const multer = require("multer");
 const { checkToken } = require("../../middleware/checkToken");
 
@@ -16,5 +16,8 @@ userauthRoutes.post('/login',uploads.none(),login)
 
 userauthRoutes.post('/change-password',checkToken,changePassword)
 
+userauthRoutes.post('/data',checkToken,getUser)
+
+userauthRoutes.post('/update-profile', checkToken ,updateUserProfile);
 
 module.exports={userauthRoutes}

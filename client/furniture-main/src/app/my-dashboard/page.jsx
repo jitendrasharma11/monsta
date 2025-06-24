@@ -1,6 +1,6 @@
 "use client"
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaAngleRight } from "react-icons/fa";
 import { Country } from '../data/Country';
 import { useSelector } from 'react-redux';
@@ -8,7 +8,7 @@ import { store } from '../store/store';
 import axios from 'axios';
 export default function Dashboard() {
 
-    let token=useSelector((store)=>store.login.token)
+    let token = useSelector((store) => store.login.token)
 
     let [dashBoardButton, setdashBoardButton] = useState(1)
 
@@ -18,37 +18,102 @@ export default function Dashboard() {
 
     let [countryShippingTitle, setcountryShippingTitle] = useState("Select Country")
 
-
-
     let [countryShippingButton, setcountryShippingButton] = useState(false)
+
+    let [userData, setUserData] = useState({
+        userName: '',
+        userEmail: '',
+        userPhone: '',
+        address: '',
+    });
 
     let apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL
 
-    let changePassword=(e)=>{
+    let userDta = (e) => {
+        axios.post(`${apiBaseUrl}user/data`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            .then((res) => {
+                console.log(res.data)
+                let data = res.data.userData;
+                setUserData({
+                    userName: data.userName || '',
+                    userEmail: data.userEmail || '',
+                    userPhone: data.userPhone || '',
+                });
+            })
+    }
 
-        let oldPassword=e.target.oldPassword.value
-        let newPassword=e.target.newPassword.value
-        let confirmPassword=e.target.confirmPassword.value
+    let changePassword = (e) => {
+
+        let oldPassword = e.target.oldPassword.value
+        let newPassword = e.target.newPassword.value
+        let confirmPassword = e.target.confirmPassword.value
 
         console.log(token)
-        console.log(oldPassword,newPassword,confirmPassword)
+        console.log(oldPassword, newPassword, confirmPassword)
 
-        let obj={
+        let obj = {
             oldPassword,
             newPassword,
             confirmPassword
         }
 
-        axios.post(`${apiBaseUrl}user/change-password`,obj,{
-            headers:{
-                Authorization:`Bearer ${token}`
+        axios.post(`${apiBaseUrl}user/change-password`, obj, {
+            headers: {
+                Authorization: `Bearer ${token}`
             }
         })
-        .then((res)=>{
-            console.log(res.data)
-        })
+            .then((res) => {
+                if (res.data.status) {
+
+                }
+                else {
+                    alert(res.data.msg)
+                }
+            })
 
         e.preventDefault()
+    }
+
+    useEffect(() => {
+        userDta()
+    }, [])
+
+
+    let editProfile = (e) => {
+        e.preventDefault()
+
+
+
+        let userObj = {
+            name: e.target.userName.value,
+            address: e.target.address.value,
+            gender: e.target.gender.value
+        }
+
+        axios.post(`${apiBaseUrl}user/update-profile`, userObj, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then((res) => {
+                if (res.data.status) {
+                    alert("Profile updated successfully")
+                }
+                else {
+                    alert(res.data.msg)
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+
+
     }
 
     return (
@@ -264,28 +329,53 @@ export default function Dashboard() {
                             <div className={`${dashBoardButton == 4 ? 'block' : 'hidden'}`} id='profile'>
                                 <h3 className='lg:text-xl text-base font-semibold'>My Profile</h3>
                                 <div className='w-full border-1 border-gray-300 rounded-sm my-2 p-4' id='billing-form'>
-                                    <form action="">
-                                        <input type="radio" name='gender' defaultChecked
-                                        /> <label htmlFor="" className='font-semibold'>Mr.</label>&nbsp;&nbsp;&nbsp;<input name='gender' type="radio" /> <label htmlFor="" className='font-semibold'>Mrs.</label>
-                                        <br />
-                                        <br />
-                                        <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Name*</label>
-                                        <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
+                                    <form onSubmit={editProfile} action="">
+                                        <input type="radio" name='gender' value={'male'} defaultChecked /> <label className='font-semibold'>Mr.</label>
+                                        &nbsp;&nbsp;&nbsp;
+                                        <input name='gender' type="radio" value={'female'} /> <label className='font-semibold'>Mrs.</label>
+                                        <br /><br />
 
+                                        <label className='text-sm font-semibold hover:text-[#C09578]'>Name*</label>
+                                        <input
+                                            type="text"
+                                            name="userName"
+                                            defaultValue={userData.userName}
 
-                                        <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Email*</label>
-                                        <input type="email" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
+                                            className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2'
+                                        />
 
+                                        <label className='text-sm font-semibold hover:text-[#C09578]'>Email*</label>
+                                        <input
+                                            type="email"
+                                            name="userEmail"
+                                            defaultValue={userData.userEmail}
+                                            readOnly
 
-                                        <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Mobile Number*</label>
-                                        <input type="tel" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
+                                            className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2'
+                                        />
 
+                                        <label className='text-sm font-semibold hover:text-[#C09578]'>Mobile Number*</label>
+                                        <input
+                                            type="tel"
+                                            name="userPhone"
+                                            defaultValue={userData.userPhone}
+                                            readOnly
 
-                                        <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Address*</label>
-                                        <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
+                                            className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2'
+                                        />
 
+                                        <label className='text-sm font-semibold hover:text-[#C09578]'>Address*</label>
+                                        <input
+                                            type="text"
+                                            name="address"
+                                            defaultValue={userData.address}
 
-                                        <button type='submit' className='py-2 px-5 my-5  font-semibold text-sm bg-[#C09578] rounded-xl text-white flex justify-end ml-auto cursor-pointer hover:bg-black hover:text-white' >Update</button>
+                                            className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2'
+                                        />
+
+                                        <button type='submit' className='py-2 px-5 my-5 font-semibold text-sm bg-[#C09578] rounded-xl text-white ml-auto hover:bg-black hover:text-white'>
+                                            Update
+                                        </button>
                                     </form>
                                 </div>
                             </div>
