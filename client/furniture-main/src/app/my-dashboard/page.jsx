@@ -93,7 +93,8 @@ export default function Dashboard() {
         let userObj = {
             name: e.target.userName.value,
             address: e.target.address.value,
-            gender: e.target.gender.value
+            gender: e.target.gender.value,
+            phone: e.target.userPhone.value,
         }
 
         axios.post(`${apiBaseUrl}user/update-profile`, userObj, {
@@ -370,7 +371,7 @@ export default function Dashboard() {
                                             type="tel"
                                             name="userPhone"
                                             defaultValue={userData.userPhone}
-                                            readOnly
+                                            
 
                                             className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2'
                                         />

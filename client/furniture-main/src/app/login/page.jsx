@@ -6,7 +6,14 @@ import React from 'react'
 import { FaAngleRight } from "react-icons/fa";
 import { useDispatch } from 'react-redux';
 import { userData } from '../slice/userSlice';
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth } from "firebase/auth";
+import { app } from '../config/firbaseConfig';
+
 export default function login() {
+
+    const provider = new GoogleAuthProvider();
+    const auth = getAuth(app);
 
     const router = useRouter();
     let dispatch = useDispatch()
@@ -17,26 +24,63 @@ export default function login() {
     let apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL
 
     let userRegister = (e) => {
-        let formValue=new FormData(e.target)
-        axios.post(`${apiBaseUrl}user/register`,formValue)
-        .then((res)=>{
-            console.log(res.data)
-        })
+        let formValue = new FormData(e.target)
+        axios.post(`${apiBaseUrl}user/register`, formValue)
+            .then((res) => {
+                console.log(res.data)
+            })
         e.preventDefault()
 
     }
+    let googleLogin = () => {
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                // This gives you a Google Access Token. You can use it to access the Google API.
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                const token = credential.accessToken;
+                // The signed-in user info.
+                const user = result.user;
+                console.log(user)
+                let insertObj = {
+                    displayName: user.displayName,
+                    email: user.email,
+                    phoneNumber: user.user,
+                }
+                axios.post(`${apiBaseUrl}user/create-user-google-login`, insertObj)
+                    .then((res) => {
+
+                        if (res.data.status) {
+                            dispatch(userData({ user: res.data.user, token: res.data.token }))
+                            router.push('/my-dashboard');
+                        }
+                    })
+                // IdP data available using getAdditionalUserInfo(result)
+                // ...
+            }).catch((error) => {
+                // Handle Errors here.
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // The email of the user's account used.
+                const email = error.customData.email;
+                // The AuthCredential type that was used.
+                const credential = GoogleAuthProvider.credentialFromError(error);
+                // ...
+            });
+    }
+
+
     let Login = (e) => {
-        let formValue=new FormData(e.target)
-        axios.post(`${apiBaseUrl}user/login`,formValue)
-        .then((res)=>{
-            if(res.data.status){
-                dispatch(userData({user:res.data.user,token:res.data.token}))
-                router.push('/my-dashboard');
-            }
-            else{
-                alert(res.data.msg)
-            }
-        })
+        let formValue = new FormData(e.target)
+        axios.post(`${apiBaseUrl}user/login`, formValue)
+            .then((res) => {
+                if (res.data.status) {
+                    dispatch(userData({ user: res.data.user, token: res.data.token }))
+                    router.push('/my-dashboard');
+                }
+                else {
+                    alert(res.data.msg)
+                }
+            })
         e.preventDefault()
 
     }
@@ -70,7 +114,18 @@ export default function login() {
                                         <p className='text-[#C09578] text-sm hover:cursor-pointer'>Lost Your Password?</p>
                                         <button className='text-white font-semibold bg-[#C09578] px-5 py-1 rounded-2xl cursor-pointer hover:text-white hover:bg-black' onClick={() => dashBoard}>Login</button>
                                     </div>
-
+                                    <button
+                                        onClick={googleLogin}
+                                        type="button"
+                                        className="flex items-center gap-3 px-5 py-2 bg-white border border-gray-300 rounded-md shadow hover:shadow-md transition duration-300"
+                                    >
+                                        <img
+                                            src="https://www.svgrepo.com/show/475656/google-color.svg"
+                                            alt="Google"
+                                            className="w-5 h-5"
+                                        />
+                                        <span className="text-gray-700 font-medium">Login with Google</span>
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -122,6 +177,7 @@ export default function login() {
                                             Register
                                         </button>
                                     </div>
+                                    
                                 </form>
                             </div>
                         </div>

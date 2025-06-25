@@ -127,14 +127,15 @@ let getUser = async (req, res) => {
 
 let updateUserProfile = async (req, res) => {
     try {
-         let { userId, address, name, gender } = req.body
-         console.log(req.body)
+        let { userId, address, name, gender,phone } = req.body
+        console.log(req.body)
 
         await userModel.updateOne({ _id: userId }, {
             $set: {
                 userAddress: address,
                 userName: name,
-                userGender: gender
+                userGender: gender,
+                userPhone:phone,
             }
         });
 
@@ -146,4 +147,49 @@ let updateUserProfile = async (req, res) => {
     }
 };
 
-module.exports = { register, login, changePassword, getUser, updateUserProfile };
+let googleLogincreate = async (req, res) => {
+
+    let { displayName, email, phoneNumber } = req.body;
+    let cheakEmail = await userModel.findOne({ userEmail: email })
+    let myRes;
+    if (cheakEmail) {
+        let user = {
+            userName: cheakEmail.userName,
+            _id: cheakEmail._id
+        }
+
+        let token = jwt.sign(user, process.env.TOKENKEY);
+
+        myRes = {
+            status: 1,
+            msg: "login Success",
+            user,
+            token
+        }
+    }
+    else {
+        let insertObj = {
+            userName: displayName,
+            userEmail: email,
+            userPhone: phoneNumber
+        };
+
+        let myUser = await userModel.create(insertObj);
+        let user = {
+            userName: myUser.userName,
+            id: myUser._id
+        }
+        let token = jwt.sign(user, process.env.TOKENKEY);
+
+        myRes = {
+            status: 1,
+            msg: "login Success",
+            user,
+            token
+        }
+
+    }
+    res.send(myRes)
+}
+
+module.exports = { register, login, changePassword, getUser, updateUserProfile, googleLogincreate };
