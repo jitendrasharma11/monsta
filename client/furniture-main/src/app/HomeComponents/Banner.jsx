@@ -4,7 +4,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-export default function Banner() {
+export default function Banner({ sliderData, sliderStaticPatch }) {
+
     let settings = {
         dots: true,
         infinite: true,
@@ -19,29 +20,24 @@ export default function Banner() {
 
 
                 <Slider {...settings} className='homeSlider'>
-                    <div>
-                        <div>
-                            <figure>
-                                <img src="/images/648e23d4-5e5d-4fd0-b0f7-856ee45c6629-1671388137 (1).jpg" className='lg:h-auto sm:h-auto h-[314px] object-cover' alt="" />
-                            </figure>
-                        </div>
-                    </div>
 
-                    <div>
-                        <div>
-                            <figure>
-                                <img src="/images/541928cd-e696-4c09-9f1c-bc9d7127c451-1671388153 (1).jpg" className='lg:h-auto sm:h-auto h-[314px] object-cover' alt="" />
-                            </figure>
-                        </div>
-                    </div>
+                    {sliderData.map((value, index) => {
+                        
+                        let { sliderImage, sliderTitle } = value;
 
-                    <div>
-                        <div>
-                            <figure>
-                                <img src="/images/add8f1ce-ae5a-4d6b-b573-8c208b6745d5-1671388062 (1).jpg" className='lg:h-auto sm:h-auto h-[314px] object-cover' alt="" />
-                            </figure>
-                        </div>
-                    </div>
+                        return (
+                            <div key={index}>
+                                <figure>
+                                    <img
+                                        src={sliderStaticPatch + encodeURIComponent(sliderImage)}
+                                        alt={sliderTitle}
+                                        className="lg:h-auto sm:h-auto h-[314px] object-cover w-full"
+                                    />
+                                </figure>
+                            </div>
+                        );
+                    })}
+
                 </Slider>
             </section>
         </>

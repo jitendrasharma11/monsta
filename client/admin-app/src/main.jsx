@@ -80,6 +80,7 @@ createRoot(document.getElementById('root')).render(
           <Route path='/view-why' element={<View_why />} />
 
           <Route path='/add-slider' element={<Add_Slider />} />
+          <Route path='/edit-slider/:id' element={<Add_Slider />} />
           <Route path='/view-slider' element={<View_Slider />} />
 
           <Route path='/add-country' element={<Add_Country />} />

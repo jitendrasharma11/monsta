@@ -1,110 +1,242 @@
-import React from 'react'
-import { Link } from 'react-router'
-import { FaFilter } from "react-icons/fa";
-import { FaPen } from "react-icons/fa";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FaFilter, FaPen } from 'react-icons/fa';
+import axios from 'axios';
+import ResponsivePagination from 'react-responsive-pagination';
 
 export default function View_Slider() {
-  return (
-    <div>
-   <section className='w-full'>
-                <div className='border-b-2 text-gray-300'></div>
-                <div className='py-3'>
-                    <nav className='mt-1'>
-                        <ul className='flex items-center'>
-                            <li> <Link to={'/dashboard'}><span className='font-bold text-gray-800'>Home </span> </Link> </li>&nbsp;
-                            <li> <Link to={'/user'}><span className='font-bold text-gray-800'>/&nbsp;Slider</span> </Link> </li>
-                            <li> <span className='font-bold text-gray-800'>/&nbsp;View</span></li>
-                        </ul>
 
-                    </nav>
+    const [activeFilter, setActiveFilter] = useState(true);
+    const [slider, setSlider] = useState([]);
+    const [staticPath, setStaticPath] = useState('');
+    const [ids, setIds] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
+    const [sliderTitle, setSliderTitle] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(0);
+    const [limit, setLimit] = useState(5);
+
+    const apiBaseUrl = import.meta.env.VITE_APIBASEURL;
+
+    const getSlider = () => {
+        axios.get(`${apiBaseUrl}slider/view`, {
+            params: {
+                sliderTitle,
+                currentPage,
+                limit
+            }
+        })
+            .then((res) => res.data)
+            .then((finalRes) => {
+                setSlider(finalRes.data);
+                setStaticPath(finalRes.staticPath);
+                setTotalPage(finalRes.pages);
+            });
+    };
+
+    useEffect(() => {
+        getSlider();
+    }, [sliderTitle, currentPage, limit]);
+
+    const getAllCheckedvalue = (event) => {
+        const value = event.target.value;
+        if (event.target.checked && !ids.includes(value)) {
+            setIds([...ids, value]);
+        } else {
+            setIds(ids.filter((v) => v !== value));
+        }
+    };
+
+    const handleSelectAll = (event) => {
+        if (event.target.checked) {
+            const allIds = slider.map(item => item._id);
+            setIds(allIds);
+        } else {
+            setIds([]);
+        }
+        setSelectAll(event.target.checked);
+    };
+
+    useEffect(() => {
+        if (slider.length > 0) {
+            setSelectAll(ids.length === slider.length);
+        }
+    }, [ids]);
+
+    const deleteMultipleSlider = () => {
+        axios.post(`${apiBaseUrl}slider/multi-delete`, { ids })
+            .then(res => res.data)
+            .then(finalRes => {
+                getSlider();
+                setIds([]);
+            })
+            .catch(err => console.error(err));
+    };
+
+    const changeSliderStatus = () => {
+        axios.post(`${apiBaseUrl}slider/status-change`, { ids })
+            .then(res => res.data)
+            .then(finalRes => {
+                getSlider();
+                setIds([]);
+            })
+            .catch(err => console.error(err));
+    };
+
+    return (
+        <section className='w-full px-4 py-6'>
+
+            {/* Filter Section */}
+            {!activeFilter && (
+                <div className="mb-6 p-4 bg-white border rounded-lg shadow-sm max-w-xl">
+                    <form className="flex" onSubmit={(e) => e.preventDefault()}>
+                        <input
+                            type="text"
+                            className="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg p-2.5"
+                            placeholder="Search Slider Name"
+                            onChange={e => setSliderTitle(e.target.value)}
+                        />
+                        <button
+                            type="submit"
+                            onClick={getSlider}
+                            className="p-2.5 text-sm font-medium text-white bg-blue-700 rounded-r-lg hover:bg-blue-800"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 20 20">
+                                <path
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                />
+                            </svg>
+                            <span className="sr-only">Search</span>
+                        </button>
+                    </form>
                 </div>
-                <div className='border-b-2 text-gray-300'></div>
-                <div className='w-full min-h-[620px]'>
-                    <div className='max-w-[1220px] mx-auto py-5'>
-                        <div className='flex items-center justify-between bg-slate-100 py-3 px-4 border rounded-t-md border-slate-400'>
+            )}
 
-                            <h3 className='text-[26px] font-semibold'>View Slider</h3>
-                            <div className='flex justify-between'>
-                                <div className='cursor-pointer text-white w-[40px] h-[40px] rounded-lg bg-blue-700 hover:bg-blue-900  mx-3'>
-                                <FaFilter className='text-white my-3  mx-2.5' />
-                                </div>
-                                <button className='text-white font-medium px-4 bg-green-700 rounded-lg focus:outline-none hover:bg-green-900'>
-                                    Change Status
-                                </button>
-                                <button className='text-white font-medium px-4 mx-4 bg-red-700 rounded-lg focus:outline-none hover:bg-red-900'>
-                                    Delete
-                                </button>
+            {/* Table Section */}
+            <div className="border rounded-lg shadow-sm">
+                <div className="flex items-center justify-between bg-[#f2f6fb] px-6 py-4 border-b rounded-t-lg">
+                    <h2 className="text-2xl font-bold text-gray-900">View Slider</h2>
+                    <div className="flex items-center gap-3">
+                        <div className="inline-block relative w-48">
+                            <select
+                                onChange={(e) => setLimit(e.target.value)}
+                                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                defaultValue=""
+                            >
+                                <option disabled value="">Select Items View</option>
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                                    <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" />
+                                </svg>
                             </div>
-    </div>
-    <div className='border border-slate-400 border-t-0 rounded-b-md'>
-
-    <div className='overflow-x-auto'>
-
-        <table className='w-full text-gray-500'>
-            <thead className='text-gray-900 text-[12px] uppercase bg-gray-50'>
-                <tr>
-                    <th>
-                    <input type='checkbox' className='text-blue-600 text-sm rounded-sm w-4 h-4 border-gray-400 '/>
-                    </th>
-                    <th scope='col' className='px-6 py-3'>Name</th>
-                    <th scope='col' className='px-6 py-3'>Image</th>
-                   
-                    <th scope='col' className='w-[15%]'>Order No</th>
-                    <th scope='col' className='w-[11%]'>Status</th>
-                    <th scope='col' className='w[6%]'>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr className='bg-white hover:bg-gray-50'>
-                    <th className='w-4 p-4'>
-                    <input type='checkbox' className='text-blue-600 text-sm rounded-sm w-4 h-4 border-gray-400 '/> 
-                    </th>
-                    <th scope='row' className=' text-[15px] px-6 py-4'>
-                        
-                    Neil Sims
-                            
-                        </th>
-
-
-                    <th scope='row' className=' text-[15px] px-6 py-4'>
-                        
-                    <img src='https://packshifts.in/images/iso.png' className='w-10 h-10 rounded-full' />
-                            
-                        </th>
-                       
-                       
-                        <th className='text-[15px] px-6  py-4'>1</th>
-                       
-                    <th className=' px-6 py-4'>
-                    <button className='text-white font-medium px-5 py-2 bg-green-700 rounded-lg focus:outline-none hover:bg-green-900'>
-                                    Active
-                                </button>
-                    </th>
-                    <th className='px-2 py-4'>
-                      
-                        <div className='w-[40px]  flex items-center justify-center h-[40px] rounded-[50%] bg-blue-700 hover:bg-blue-800'>
-                        <Link to={'/user'}>
-                        <FaPen className='text-white ' />
-                        </Link>
                         </div>
-                       
-                    </th>
-                </tr>
+                        <button
+                            className="bg-blue-700 hover:bg-blue-800 text-white rounded-full p-3"
+                            onClick={() => setActiveFilter(!activeFilter)}
+                        >
+                            <FaFilter />
+                        </button>
+                        <button
+                            onClick={changeSliderStatus}
+                            className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                        >
+                            Change Status
+                        </button>
+                        <button
+                            onClick={deleteMultipleSlider}
+                            className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
 
-            </tbody>
-        </table>
-    </div>
-    </div>
-    </div>
-   </div>
-    </section>
-
-
-
-
-
-    </div>
-  )
+                {/* Table */}
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left text-gray-700">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-t">
+                            <tr>
+                                <th className="px-4 py-3">
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
+                                        checked={selectAll}
+                                        onChange={handleSelectAll}
+                                    />
+                                </th>
+                                <th className="px-6 py-3 font-semibold">Sr No</th>
+                                <th className="px-6 py-3 font-semibold">Title</th>
+                                <th className="px-6 py-3 font-semibold">Image</th>
+                                <th className="px-6 py-3 font-semibold">Order</th>
+                                <th className="px-6 py-3 font-semibold">Status</th>
+                                <th className="px-6 py-3 font-semibold">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {slider.length > 0 ? (
+                                slider.map((items, index) => (
+                                    <tr key={index} className="bg-white hover:bg-gray-50">
+                                        <td className="px-4 py-4">
+                                            <input
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 border-gray-400 rounded-sm"
+                                                value={items._id}
+                                                checked={ids.includes(items._id)}
+                                                onChange={getAllCheckedvalue}
+                                            />
+                                        </td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">{(currentPage - 1) * limit + (index + 1)}</td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">{items.sliderTitle}</td>
+                                        <td className="px-6 py-4">
+                                            <img
+                                                src={staticPath + items.sliderImage}
+                                                alt="Slider"
+                                                className="w-10 h-10 object-cover rounded-full"
+                                            />
+                                        </td>
+                                        <td className="px-6 py-4">{items.sliderOrder}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-block text-white text-sm font-semibold px-5 py-1.5 rounded-lg ${items.sliderStatus
+                                                ? 'bg-green-600'
+                                                : 'bg-red-600'
+                                                }`}>
+                                                {items.sliderStatus ? 'Active' : 'Deactive'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <Link to={`/edit-slider/${items._id}`}>
+                                                <div className="w-[40px] h-[40px] rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center">
+                                                    <FaPen className="text-white" />
+                                                </div>
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={7} className="text-center py-4 text-gray-700 font-semibold">
+                                        No Data Found
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                    <ResponsivePagination
+                        current={currentPage}
+                        total={totalPage}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
+            </div>
+        </section>
+    );
 }
-
-export{View_Slider}

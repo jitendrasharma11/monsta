@@ -6,7 +6,7 @@ let productSchema= new mongoose.Schema({
         unique:true,
         required:true,
         minLength:2,
-        maxLength:20,
+        maxLength:20000,
        
     },                                                                            
     parentCategory: {type:mongoose.Schema.ObjectId, ref: "category"},
@@ -30,7 +30,8 @@ let productSchema= new mongoose.Schema({
     productGallery:Array,
     productDescription:String,
     productOrder:Number,
-    productStatus:Boolean
+    productStatus:Boolean,
+    slug: String,
 })
 
 productSchema.pre('save', function (next) {
