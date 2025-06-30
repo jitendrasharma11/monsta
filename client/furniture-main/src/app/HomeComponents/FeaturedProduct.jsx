@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Link from 'next/link';
 import React, { useState } from 'react'
 import { FaRegHeart } from "react-icons/fa";
@@ -25,14 +26,7 @@ export default function FeaturedProduct({ productImagePath, productData, product
                             })
                         }
 
-
-
                     </div>
-
-
-
-
-
 
                 </div>
             </section>
@@ -43,9 +37,13 @@ export default function FeaturedProduct({ productImagePath, productData, product
 
 function ProductItems({ items, productImagePath }) {
 
+    let token = useSelector((store) => store.login.token)
+
     let [color, setColor] = useState(items.productColor[0]._id)
 
     let user = useSelector((store) => store.login.user)
+
+    let apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL
 
     let addToCart = () => {
 
@@ -61,7 +59,21 @@ function ProductItems({ items, productImagePath }) {
                 productQuantity: 1,
                 color,
             }
-            console.log(obj)
+            // console.log("obj",obj)
+
+            axios.post(`${apiBaseUrl}cart/add-to-cart`, obj, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+                .then((res) => {
+                    if (res.data.status) {
+    
+                    }
+                    else {
+                        alert(res.data.msg)
+                    }
+                })
 
         }
         else {
