@@ -1,3 +1,4 @@
+"use client";
 import axios from 'axios';
 import Link from 'next/link';
 import React, { useState } from 'react'
@@ -5,9 +6,9 @@ import { FaRegHeart } from "react-icons/fa";
 import { useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from 'next/navigation';
 
 export default function FeaturedProduct({ productImagePath, productData, productType, setproductType }) {
-
 
 
     return (
@@ -39,6 +40,8 @@ export default function FeaturedProduct({ productImagePath, productData, product
 }
 
 function ProductItems({ items, productImagePath }) {
+
+    let  router = useRouter();
 
     let token = useSelector((store) => store.login.token)
 
@@ -84,6 +87,10 @@ function ProductItems({ items, productImagePath }) {
 
             // alert("Please login to add to cart")
             toast.warn("Please login to add to cart");
+            
+            setTimeout(() => {
+                router.push('/login');
+              }, 2000);
 
         }
 
