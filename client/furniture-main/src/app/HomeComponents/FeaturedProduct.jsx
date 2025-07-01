@@ -3,6 +3,8 @@ import Link from 'next/link';
 import React, { useState } from 'react'
 import { FaRegHeart } from "react-icons/fa";
 import { useSelector } from 'react-redux';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function FeaturedProduct({ productImagePath, productData, productType, setproductType }) {
 
@@ -10,6 +12,7 @@ export default function FeaturedProduct({ productImagePath, productData, product
 
     return (
         <>
+            <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
             <section className='max-w-full my-5' id='featturedProduct'>
                 <div className='max-w-[1320px] lg:mx-auto sm:mx-2 mx-2 ' id='featuredProductItems'>
                     <div className='flex justify-center lg:py-6  '>
@@ -68,17 +71,19 @@ function ProductItems({ items, productImagePath }) {
             })
                 .then((res) => {
                     if (res.data.status) {
-    
+                        toast.success("Item added to cart successfully!");
                     }
                     else {
-                        alert(res.data.msg)
+                        // alert(res.data.msg)
+                        toast.error(res.data.msg)
                     }
                 })
 
         }
         else {
 
-            alert("Please login to add to cart")
+            // alert("Please login to add to cart")
+            toast.warn("Please login to add to cart");
 
         }
 

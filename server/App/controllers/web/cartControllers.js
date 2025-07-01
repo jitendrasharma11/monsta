@@ -7,6 +7,8 @@ let addTOCart = async (req, res) => {
 
     let checkProductinCart = await cartrModel.findOne({ productId, color, userId })
 
+    console.log("checkProductinCart",checkProductinCart)
+
     let resObj
     if (checkProductinCart) {
 

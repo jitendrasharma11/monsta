@@ -4,7 +4,11 @@ import { MdEdit } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { FaEdit } from "react-icons/fa";
 import axios from 'axios';
+import { Link } from "react-router-dom";
+
+
 export default function ViewProduct() {
+    
     let [viewProduct, setviewProduct] = useState(null)
     let [productDetails, setproductDetails] = useState(false)
 
@@ -96,7 +100,7 @@ export default function ViewProduct() {
                         <div className='shadow-lg border p-4 rounded-md bg-white'>
                             <h3 className='text-lg font-semibold mb-4'>Product Details</h3>
                             <div className='space-y-3 text-sm'>
-                              <div className='flex'>
+                                <div className='flex'>
                                     <span className='font-semibold w-32'>Product Name:</span>
                                     <span>{productDetails.productName}</span>
                                 </div>
@@ -120,7 +124,11 @@ export default function ViewProduct() {
                                     <span className='font-semibold w-32'>Colors:</span>
                                     <div className='flex flex-wrap gap-2'>
                                         {productDetails.productColor.map((colorItems, index) => (
-                                            <span key={index} className='px-3 py-1 text-white text-xs font-semibold rounded-md shadow' style={{ backgroundColor: colorItems.colorName }}>
+                                            <span
+                                                key={index}
+                                                className='px-3 py-1 text-white text-xs font-semibold rounded-md shadow'
+                                                style={{ backgroundColor: colorItems.colorName }}
+                                            >
                                                 {colorItems.colorName}
                                             </span>
                                         ))}
@@ -199,7 +207,9 @@ export default function ViewProduct() {
                                     <td className='py-4'>
                                         <div className='flex items-center gap-3 justify-center'>
                                             <RiDeleteBin6Line className='text-red-500 text-lg cursor-pointer hover:scale-110 transition' />
+                                            <Link to={`/edit-product/${items._id}`}>
                                             <FaEdit className='text-yellow-500 text-lg cursor-pointer hover:scale-110 transition' />
+                                            </Link>
                                         </div>
                                     </td>
                                     <td className='py-4 text-center text-green-600 font-semibold'>Active</td>
