@@ -81,4 +81,19 @@ let deleteCart = async (req, res) => {
 
 }
 
-module.exports = { addTOCart, viewCart, deleteCart }
+let updateQuantity = async (req, res) => {
+    let { cartId, productQuantity } = req.body;
+
+    let updatedCart = await cartrModel.updateOne(
+        { _id: cartId },
+        { $set: { productQuantity: productQuantity } }
+    );
+
+    res.send({
+        status: 1,
+        msg: "Quantity Updated",
+        updatedCart
+    });
+};
+
+module.exports = { addTOCart, viewCart, deleteCart ,updateQuantity}

@@ -63,6 +63,23 @@ function CartRow({ items, imagePath }) {
         }
 
     }
+
+    let handleQuantityChange = (e) => {
+        let newQty = parseInt(e.target.value);
+
+        if (newQty > 0) {
+            axios.post(`${apiBaseUrl}cart/update-quantity`, {
+                cartId: items._id,
+                productQuantity: newQty
+            }).then((res) => {
+                if (res.data.status === 1) {
+                    dispatch(fetchCart());
+                }
+            }).catch(err => {
+                console.error("Quantity update error:", err);
+            });
+        }
+    };
     
     return (
         <tr className="border-b border-gray-200">
@@ -78,14 +95,9 @@ function CartRow({ items, imagePath }) {
             </td>
             <td className="p-4 text-sm border-r border-gray-200">
                 {items.productName}
-
-
             </td>
             <td className="p-4 font-bold text-base border-r border-gray-200">
-
-                Rs.   {items.productPrice}
-
-
+                Rs. {items.productPrice}
             </td>
             <td className="p-4 border-r border-gray-200">
                 <div className="flex items-center gap-2">
@@ -93,14 +105,14 @@ function CartRow({ items, imagePath }) {
                     <input
                         type="number"
                         defaultValue={items.productQuantity}
+                        min={1}
+                        onChange={handleQuantityChange}
                         className="w-16 border border-gray-300 rounded px-2 py-1 text-center"
                     />
                 </div>
             </td>
-            <td className="p-4 font-bold text-base">Rs.
-
-                {items.productPrice * items.productQuantity}
-
+            <td className="p-4 font-bold text-base">
+                Rs. {items.productPrice * items.productQuantity}
             </td>
         </tr>
     )
