@@ -1,6 +1,18 @@
-import React from 'react'
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 export default function CartSummary() {
+    let cart = useSelector((store) => store.cart.cart);
+
+    let subtotal = 0;
+    let discount = 0;
+    let total = 0;
+
+    if (Array.isArray(cart)) {
+        subtotal = cart.reduce((acc, item) => acc + (item.productPrice * item.productQuantity), 0);
+        total = subtotal - discount;
+    }
+
     return (
         <section className='max-w-full' id='cartSummary'>
             <div className='max-w-[1320px] mx-auto'>
@@ -18,7 +30,7 @@ export default function CartSummary() {
                                     placeholder="Coupon code"
                                     className="border border-gray-300 px-4 py-2"
                                 />
-                                <button className="bg-black cursor-pointer text-white px-4 py-2 font-semibold hover:bg-[#C09578]  transition">
+                                <button className="bg-black cursor-pointer text-white px-4 py-2 font-semibold hover:bg-[#C09578] transition">
                                     Apply Coupon
                                 </button>
                             </div>
@@ -33,18 +45,18 @@ export default function CartSummary() {
                         <div className="p-4 space-y-4">
                             <div className="flex justify-between">
                                 <span className="font-semibold">Subtotal</span>
-                                <span className="font-semibold">Rs. 5,200</span>
+                                <span className="font-semibold">Rs. {subtotal}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="font-semibold">Discount (-)</span>
-                                <span className="font-semibold">Rs. 0</span>
+                                <span className="font-semibold">Rs. {discount}</span>
                             </div>
                             <div className="flex justify-between text-lg font-bold">
                                 <span>Total</span>
-                                <span>Rs. 5,200</span>
+                                <span>Rs. {total}</span>
                             </div>
                             <div className="pt-4 flex justify-end">
-                                <button className="bg-black cursor-pointer text-white px-4 py-2 font-semibold hover:bg-[#C09578]  transition">
+                                <button className="bg-black cursor-pointer text-white px-4 py-2 font-semibold hover:bg-[#C09578] transition">
                                     Proceed To Checkout
                                 </button>
                             </div>
@@ -53,5 +65,5 @@ export default function CartSummary() {
                 </div>
             </div>
         </section>
-    )
+    );
 }

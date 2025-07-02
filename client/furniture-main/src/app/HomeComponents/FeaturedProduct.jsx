@@ -3,10 +3,11 @@ import axios from 'axios';
 import Link from 'next/link';
 import React, { useState } from 'react'
 import { FaRegHeart } from "react-icons/fa";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
+import { fetchCart } from '../slice/cartSlice';
 
 export default function FeaturedProduct({ productImagePath, productData, productType, setproductType }) {
 
@@ -40,6 +41,9 @@ export default function FeaturedProduct({ productImagePath, productData, product
 }
 
 function ProductItems({ items, productImagePath }) {
+
+
+    let dispatch = useDispatch()
 
     let  router = useRouter();
 
@@ -75,6 +79,7 @@ function ProductItems({ items, productImagePath }) {
                 .then((res) => {
                     if (res.data.status) {
                         toast.success("Item added to cart successfully!");
+                        dispatch(fetchCart())
                     }
                     else {
                         // alert(res.data.msg)

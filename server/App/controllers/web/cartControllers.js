@@ -7,7 +7,7 @@ let addTOCart = async (req, res) => {
 
     let checkProductinCart = await cartrModel.findOne({ productId, color, userId })
 
-    console.log("checkProductinCart",checkProductinCart)
+    console.log("checkProductinCart", checkProductinCart)
 
     let resObj
     if (checkProductinCart) {
@@ -48,4 +48,37 @@ let addTOCart = async (req, res) => {
 
 }
 
-module.exports = { addTOCart }
+let viewCart = async (req, res) => {
+
+    let { userId } = req.body;
+
+    let cartData = await cartrModel.find({ userId }).populate("color", "colorName")
+
+    let obj = {
+
+        status: 1,
+        cartData,
+        staticPath: process.env.PRODUCTIMAGEPATH,
+    }
+    res.send(obj)
+
+}
+
+let deleteCart = async (req, res) => {
+
+    let {cartId} = req.params
+
+    let cart = await cartrModel.deleteOne({ _id: cartId })
+
+    let obj = {
+
+        status: 1,
+        msg: "Cart Items Delete",
+        cart
+    }
+
+    res.send(obj)
+
+}
+
+module.exports = { addTOCart, viewCart, deleteCart }

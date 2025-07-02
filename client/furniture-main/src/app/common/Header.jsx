@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { IoIosSearch } from "react-icons/io";
 import { FaHeart } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
@@ -10,12 +10,21 @@ import Link from 'next/link';
 import { CiMenuBurger } from "react-icons/ci";
 import { useDispatch, useSelector } from 'react-redux';
 import { logOut } from '../slice/userSlice';
+import { fetchCart } from '../slice/cartSlice';
+
 export default function Header() {
 
     let user = useSelector((store) => store.login.user)
+    let cart = useSelector((store) => store.cart.cart)
 
+    
     let dispatch=useDispatch()
-    console.log(user)
+    useEffect(()=>{
+        dispatch(fetchCart())
+    },[])
+
+    console.log("cartDetails",cart)
+
 
     let [mobileNav, setmobileNav] = useState(false)
 

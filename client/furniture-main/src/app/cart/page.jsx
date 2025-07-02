@@ -1,9 +1,18 @@
+"use client"
 import Link from 'next/link'
 import React from 'react'
 import { FaAngleRight } from "react-icons/fa";
+import { useSelector } from 'react-redux';
 import CartItems from './CartItems';
 import CartSummary from './CartSummary';
+
+
 export default function page() {
+
+    let cart = useSelector((store) => store.cart.cart)
+    let imagePath = useSelector((store) => store.cart.imagePath)
+    console.log("Hello",cart)
+
     return (
         <>
             <section className='max-w-full my-8' id='cart'>
@@ -19,19 +28,27 @@ export default function page() {
                         </div>
 
                         <hr className='border-gray-200 my-5' />
-                        <div id='cartItems'>
-                            <figure>
-                                <img src="/images/my-Order.jpg" className='mx-auto' alt="" />
-                            </figure>
-                            <p className='text-center text-sm'>Your shopping cart is empty!</p>
-                        </div>
+                        {
+                            cart?.length === 0
+                                ?
+                                <div id='cartItems'>
+                                    <figure>
+                                        <img src="/images/my-Order.jpg" className='mx-auto' alt="" />
+                                    </figure>
+                                    <p className='text-center text-sm'>Your shopping cart is empty!</p>
+                                </div>
+                                :
+                                <>
+                                    <CartItems cart={cart} imagePath={imagePath} />
+                                    <CartSummary cart={cart} />
+                                </>
+                        }
+
                     </div>
                 </div>
             </section>
 
 
-            {/* <CartItems />   
-            <CartSummary /> */}
         </>
     )
 }
