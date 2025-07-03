@@ -1,11 +1,26 @@
 "use client"
-import React from 'react'
+import React, { useEffect } from 'react'
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { fetchCart } from '../slice/cartSlice';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 export default function CartItems({ cart, imagePath }) {
+
+    const dispatch = useDispatch();
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = Cookies.get("TOKEN");
+
+        if (!token) {
+            router.push("/login");
+        } else {
+            dispatch(fetchCart());
+        }
+    }, []);
 
     return (
 
@@ -26,7 +41,7 @@ export default function CartItems({ cart, imagePath }) {
                             </thead>
                             <tbody className='text-center'>
 
-                            {cart.map((items, index) => {
+                                {cart.map((items, index) => {
                                     return (
                                         <CartRow items={items} imagePath={imagePath} key={index} />
                                     )
@@ -59,7 +74,7 @@ function CartRow({ items, imagePath }) {
             axios.delete(`${apiBaseUrl}cart/delete-cart/${_id}`)
                 .then((res) => {
                     dispatch(fetchCart())
-            })
+                })
         }
 
     }
@@ -80,7 +95,8 @@ function CartRow({ items, imagePath }) {
             });
         }
     };
-    
+
+
     return (
         <tr className="border-b border-gray-200">
             <td className="p-4 text-center text-xl text-brown-700 border-r border-gray-200">

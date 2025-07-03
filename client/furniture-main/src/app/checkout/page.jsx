@@ -1,248 +1,193 @@
-"use client"
-import Link from 'next/link'
-import React, { useState } from 'react'
+"use client";
+import axios from 'axios';
+import Link from 'next/link';
+import React, { useState } from 'react';
 import { FaAngleRight } from "react-icons/fa";
-import { Country } from '../data/Country';
-import { RiArrowDropDownLine } from "react-icons/ri";
-import { RiArrowDropUpLine } from "react-icons/ri";
+import { useSelector } from 'react-redux';
+
 export default function Checkout() {
+    const [paymentMethod, setPaymentMethod] = useState("1"); // 1 = COD, 2 = Online
 
-    let [countryBillingButton, setcountryBillingButton] = useState(0)
+    let apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL
+    let token = useSelector((store) => store.login.token)
 
-    let [countryBillingTitle, setcountryBillingTitle] = useState("Select Country")
+    const [shippingAddress, setShippingAddress] = useState({
+        name: "",
+        billingName: "",
+        mobile: "",
+        billingEmail: "",
+        billingMobile: "",
+        billingAddress: "",
+        state: "",
+        city: "",
+        orderNotes: "",
+    });
 
-    let [checkedButton, setcheckedButton] = useState(false)
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setShippingAddress({ ...shippingAddress, [name]: value });
+    };
+
+    const cart = useSelector((store) => store.cart.cart);
+
+    const orderAmount = cart.reduce((total, item) => total + item.productPrice * item.productQuantity, 0);
+    const orderQty = cart.reduce((total, item) => total + item.productQuantity, 0);
+
+    const orderPlace = (event) => {
+        event.preventDefault();
+
+        const orderItems = cart.map((item) => ({
+
+            productName: item.productName,
+            productPrice: item.productPrice,
+            productQuantity: item.productQuantity,
+            colorName: item.color.colorName,
+            productImage: item.productImage
+
+        }));
+
+        console.log("Cart:", orderItems);
+        console.log("Total Qty:", orderQty);
+        console.log("Cart Total:", orderItems);
+        console.log("Payment Method:", paymentMethod);
+        console.log("Shipping Address:", shippingAddress);
+
+
+        let obj = {
+            paymentMethod,
+            shippingAddress,
+            orderItems,
+            orderAmount,
+            orderQty
+        }
+
+        axios.post(`${apiBaseUrl}order/order-save`, obj, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then((res) => {
+                
+            })
+
+
+
+    };
+
     return (
         <>
-            <section className='max-w-full my-8' id='checkout'>
-                <div className='max-w-[1320px] lg:mx-auto mx-2' id='checkout-mid'>
-                    <div className='w-full text-center' id='checkout-mid-heading'>
-                        <h2 className=' lg:text-4xl sm:text-4xl text-2xl font-semibold'>Checkout</h2>
-                        <div className='flex items-center justify-center gap-1 lg:my-3 sm:my-3 my-2 '>
-
-                            <Link href={'/'} className='text-sm hover:text-[#C09578]'>Home</Link>
+            {/* Heading */}
+            <section className='max-w-full my-8'>
+                <div className='max-w-[1320px] mx-auto'>
+                    <div className='text-center'>
+                        <h2 className='text-2xl sm:text-4xl font-semibold'>Checkout</h2>
+                        <div className='flex items-center justify-center gap-1 my-2'>
+                            <Link href='/' className='text-sm hover:text-[#C09578]'>Home</Link>
                             <FaAngleRight className='text-[#C09578]' />
-                            <Link href={'/about'} className='text-sm text-[#C09578]'> Checkout </Link >
-
+                            <Link href='/about' className='text-sm text-[#C09578]'>Checkout</Link>
                         </div>
                         <hr className='border-gray-200 my-5' />
                     </div>
                 </div>
             </section>
 
-            <section className='max-w-full' id='checkout-form'>
-                <div className='max-w-[1320px] lg:mx-auto mx-2  my-10' >
-                    <div className='grid lg:grid-cols-[45%_auto]'>
+            {/* Checkout Body */}
+            <section className='max-w-full'>
+                <div className='max-w-[1320px] mx-auto my-10 px-3'>
+                    <form onSubmit={orderPlace} className='grid grid-cols-1 lg:grid-cols-[70%_30%] gap-5'>
+                        {/* Billing Form */}
                         <div>
-                            <h2 className='text-base font-semibold w-full bg-black text-white p-2 uppercase'>Billing Details</h2>
-                            <div className='w-full my-5'>
-                                <form action="" className='w-full'>
-                                    <div className='grid lg:grid-cols-2 sm:grid-cols-2 gap-5'>
-                                        <div>
-                                            <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Name*</label>
-                                            <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-
-                                            <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Billing Name*</label>
-                                            <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-                                        </div>
-
-                                        <div>
-                                            <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>
-                                                Mobile Number*</label>
-                                            <input type="tel" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-
-                                            <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Billing Email*</label>
-                                            <input type="email" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-                                        </div>
+                            <h2 className='text-base font-semibold bg-black text-white p-2 uppercase'>Billing Details</h2>
+                            <div className='mt-5'>
+                                <div className='grid sm:grid-cols-2 gap-5'>
+                                    <div>
+                                        <label className='text-sm font-semibold'>Name*</label>
+                                        <input type='text' name='name' value={shippingAddress.name} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
+                                        <label className='text-sm font-semibold'>Billing Name*</label>
+                                        <input type='text' name='billingName' value={shippingAddress.billingName} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                     </div>
-
-                                    <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Billing Mobile Number*</label>
-                                    <input type="tel" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-
-                                    <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Billing Address*</label>
-                                    <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-
-                                    <div className='relative mb-2' id='country'>
-
-                                        <button type='button' className='w-full text-left p-2 border-1 border-gray-200 rounded-sm mt-2 text-gray-600 flex items-center justify-between' onClick={() => setcountryBillingButton(countryBillingButton === 1 ? 0 : 1)}>{countryBillingTitle}
-
-
-                                            {
-                                                countryBillingButton == 1
-                                                    ?
-                                                    <RiArrowDropUpLine />
-                                                    :
-                                                    <RiArrowDropDownLine />
-                                            }
-
-
-                                        </button>
-                                        <div className={`w-full border-1 h-[170px] overflow-y-scroll  border-gray-200 rounded-sm absolute top-[100%] z-99 bg-white ${countryBillingButton == 1 ? 'block' : 'hidden'}`}>
-                                            <nav>
-                                                <ul>
-
-                                                    {
-                                                        Country.map((value, index) => {
-                                                            let { id, title } = value
-                                                            return (
-                                                                <li key={id} className=' text-base py-1 hover:bg-blue-600 hover:text-white w-full p-3 ' onClick={() => {
-                                                                    setcountryBillingButton(0)
-                                                                    setcountryBillingTitle(title)
-                                                                }}>
-                                                                    {title}
-                                                                </li>
-                                                            )
-                                                        })
-                                                    }
-
-                                                </ul>
-                                            </nav>
-                                        </div>
+                                    <div>
+                                        <label className='text-sm font-semibold'>Mobile Number*</label>
+                                        <input type='tel' name='mobile' value={shippingAddress.mobile} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
+                                        <label className='text-sm font-semibold'>Billing Email*</label>
+                                        <input type='email' name='billingEmail' value={shippingAddress.billingEmail} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                     </div>
+                                </div>
 
-                                    <div className='grid lg:grid-cols-2 lg:order-1 order-1 gap-5 my-5'>
-                                        <div className='lg:order-2 order-3'>
-                                            <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>State*</label>
-                                            <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-                                         
-                                            <div className='flex items-center mt-3 gap-3 relative'>
-                                                <input type="checkbox" className='h-[15px] w-[15px]' checked={checkedButton} />
-                                                <button type='button' className='bg-black text-white p-1 text-base font-semibold capitalize cursor-pointer' onClick={() => setcheckedButton(!checkedButton)}>shipping to a different address ? </button>
+                                <label className='text-sm font-semibold'>Billing Mobile Number*</label>
+                                <input type='tel' name='billingMobile' value={shippingAddress.billingMobile} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
 
+                                <label className='text-sm font-semibold'>Billing Address*</label>
+                                <input type='text' name='billingAddress' value={shippingAddress.billingAddress} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
 
-                                            </div>
+                                <label className='text-sm font-semibold mt-2'>Country</label>
+                                <input type='text' value='India' disabled className='w-full p-2 border border-gray-300 rounded-sm my-2 bg-gray-100 text-gray-500' />
 
-                                        </div>
-
-                                        <div className='lg:order-3 order-2'>
-                                            <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>City*</label>
-                                            <input type="email" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-                                        </div>
-
-
+                                <div className='grid sm:grid-cols-2 gap-5 mt-4'>
+                                    <div>
+                                        <label className='text-sm font-semibold'>State*</label>
+                                        <input type='text' name='state' value={shippingAddress.state} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                     </div>
-
-                                    <div className={`w-full my-5 ${checkedButton ? 'block' : 'hidden'}`} id='diffrent-shipping'>
-                                        <div className='grid lg:grid-cols-2 sm:grid-cols-2 mb-5 gap-5'>
-                                            <div>
-                                                <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Shipping Name*</label>
-                                                <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-                                            </div>
-                                            <div>
-                                                <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Shipping Email*</label>
-                                                <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-                                            </div>
-                                        </div>
-                                        <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Shipping Mobile Number*</label>
-                                        <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-
-                                        <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Shipping Address*</label>
-                                        <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-
-                                        <div className='relative mb-2' id='diffrent-shipping-country'>
-
-                                            <button type='button' className='w-full text-left p-2 border-1 border-gray-200 rounded-sm mt-2 text-gray-600 flex items-center justify-between' onClick={() => setcountryBillingButton(countryBillingButton === 2 ? 0 : 2)}>{countryBillingTitle}
-
-
-                                                {
-                                                    countryBillingButton == 2
-                                                        ?
-                                                        <RiArrowDropUpLine />
-                                                        :
-                                                        <RiArrowDropDownLine />
-                                                }
-
-
-                                            </button>
-                                            <div className={`w-full border-1 h-[170px] overflow-y-scroll  border-gray-200 rounded-sm absolute top-[100%] z-99 bg-white ${countryBillingButton == 2 ? 'block' : 'hidden'}`}>
-                                                <nav>
-                                                    <ul>
-
-                                                        {
-                                                            Country.map((value, index) => {
-                                                                let { id, title } = value
-                                                                return (
-                                                                    <li key={id} className=' text-base py-1 hover:bg-blue-600 hover:text-white w-full p-3 ' onClick={() => {
-                                                                        setcountryBillingButton(0)
-                                                                        setcountryBillingTitle(title)
-                                                                    }}>
-                                                                        {title}
-                                                                    </li>
-                                                                )
-                                                            })
-                                                        }
-
-                                                    </ul>
-                                                </nav>
-                                            </div>
-                                        </div>
-
-                                        <div className='grid lg:grid-cols-2 sm:grid-cols-2 mb-5 gap-5'>
-                                            <div>
-                                                <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>State*</label>
-                                                <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-                                            </div>
-                                            <div>
-                                                <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>
-                                                    City*</label>
-                                                <input type="text" className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2' />
-                                            </div>
-                                        </div>
+                                    <div>
+                                        <label className='text-sm font-semibold'>City*</label>
+                                        <input type='text' name='city' value={shippingAddress.city} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                     </div>
+                                </div>
 
-                                    <label htmlFor="" className='text-sm cursor-pointer font-semibold hover:text-[#C09578]'>Order Notes</label>
-                                    <textarea type="text" className='w-full p-1.5 border-1 text-sm px-3 border-gray-200 rounded-sm my-2 resize-none h-[100px]' placeholder='Notes about your order, e.g. special notes for delivery.' />
-
-
-                                    <h2 className='text-base font-bold w-full bg-black text-white p-2 uppercase'>Your order</h2>
-
-
-                                    <div className="max-w-2xl mx-auto my-2 overflow-x-auto">
-                                        <table className="min-w-full border border-gray-200">
-                                            <thead className="bg-gray-100">
-                                                <tr>
-                                                    <th className="text-center px-6 py-3 text-gray-800 font-semibold lg:text-lg text-base  border-b border-gray-300">
-                                                        Product
-                                                    </th>
-                                                    <th className="text-center px-6 py-3 text-gray-800 font-semibold lg:text-lg text-base  border-b border-gray-300">
-                                                        Total
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className='text-center'>
-                                                <tr className="border-b border-gray-200">
-                                                    <td className="px-6 py-4 lg:text-base text-sm font-medium text-gray-900">
-                                                        Evan Coffee Table × 1
-                                                    </td>
-                                                    <td className="px-6 py-4 lg:text-base text-sm text-center font-semibold text-gray-900">
-                                                        Rs. 2,300
-                                                    </td>
-                                                </tr>
-                                                <tr className="border-b border-gray-200">
-                                                    <td className="px-6 py-4 lg:text-base text-sm text-gray-700">Cart Subtotal</td>
-                                                    <td className="px-6 py-4 lg:text-base text-sm text-center text-gray-700">Rs. 2,300</td>
-                                                </tr>
-                                                <tr className="border-b border-gray-200">
-                                                    <td className="px-6 py-4 lg:text-base text-sm text-gray-700">Discount (–)</td>
-                                                    <td className="px-6 py-4 lg:text-base text-sm text-center text-gray-700">Rs. 0</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="px-6 py-4 lg:text-base text-sm font-bold text-gray-900">Order Total</td>
-                                                    <td className="px-6 py-4 lg:text-base text-sm text-center font-bold text-gray-900">
-                                                        Rs. 2,300
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <button type='submit' className='my-5 bg-[#C09578] text-white font-bold p-2 rounded-sm text-base cursor-pointer hover:text-white hover:bg-black'>Placed Order</button>
-                                </form>
+                                <label className='text-sm font-semibold'>Order Notes</label>
+                                <textarea name='orderNotes' value={shippingAddress.orderNotes} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2 h-[100px]' placeholder='Notes about your order...' />
                             </div>
                         </div>
-                    </div>
+
+                        {/* Order Summary & Payment */}
+                        <div className='space-y-5'>
+                            <div>
+                                <h2 className='text-base font-bold bg-black text-white p-2 uppercase'>Your Order</h2>
+                                <table className='w-full mt-2 border border-gray-200 text-sm'>
+                                    <thead className='bg-gray-100'>
+                                        <tr>
+                                            <th className='text-left p-2 border'>Product</th>
+                                            <th className='text-right p-2 border'>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {cart.map((item, index) => (
+                                            <tr key={index} className='border'>
+                                                <td className='p-2'>{item.productName} × {item.productQuantity}</td>
+                                                <td className='p-2 text-right'>Rs. {item.productPrice * item.productQuantity}</td>
+                                            </tr>
+                                        ))}
+                                        <tr className='border'>
+                                            <td className='p-2'>Cart Subtotal</td>
+                                            <td className='p-2 text-right'>Rs. {orderAmount}</td>
+                                        </tr>
+                                        <tr className='border font-bold'>
+                                            <td className='p-2'>Order Total</td>
+                                            <td className='p-2 text-right'>Rs. {orderAmount}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className='bg-gray-50 border border-gray-200 p-4 rounded-sm'>
+                                <h3 className='text-base font-semibold mb-3'>Select Payment Method</h3>
+                                <div className='flex items-center gap-2 mb-2'>
+                                    <input type='radio' id='cod' name='paymentMethod' value='1' checked={paymentMethod === '1'} onChange={(e) => setPaymentMethod(e.target.value)} />
+                                    <label htmlFor='cod' className='text-sm'>Cash on Delivery (COD)</label>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                    <input type='radio' id='online' name='paymentMethod' value='2' checked={paymentMethod === '2'} onChange={(e) => setPaymentMethod(e.target.value)} />
+                                    <label htmlFor='online' className='text-sm'>Online Payment</label>
+                                </div>
+                            </div>
+
+                            <button type='submit' className='w-full bg-[#C09578] text-white px-4 py-2 rounded-sm font-semibold hover:bg-black'>
+                                Place Order
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </section>
         </>
-    )
+    );
 }

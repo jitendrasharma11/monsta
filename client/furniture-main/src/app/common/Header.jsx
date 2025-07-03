@@ -17,13 +17,13 @@ export default function Header() {
     let user = useSelector((store) => store.login.user)
     let cart = useSelector((store) => store.cart.cart)
 
-    
-    let dispatch=useDispatch()
-    useEffect(()=>{
-        dispatch(fetchCart())
-    },[])
 
-    console.log("cartDetails",cart)
+    let dispatch = useDispatch()
+    useEffect(() => {
+        dispatch(fetchCart())
+    }, [])
+
+    console.log("cartDetails", cart)
 
 
     let [mobileNav, setmobileNav] = useState(false)
@@ -46,6 +46,18 @@ export default function Header() {
 
     let [pageMenu, setpageMenu] = useState(false)
 
+    let totalQuantity = 0;
+
+    if (Array.isArray(cart)) {
+        totalQuantity = cart.reduce((acc, item) => acc + item.productQuantity, 0);
+    }
+
+    let subtotal = 0;
+    if (Array.isArray(cart)) {
+        subtotal = cart.reduce((acc, item) => acc + (item.productPrice * item.productQuantity), 0);
+    }
+
+
 
     return (
         <>
@@ -62,11 +74,14 @@ export default function Header() {
 
                         <div className='max-w-full flex flex-col text-center item-center   ' id='header-mid-top'>
                             <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-8540064060  </Link>
-                            { user ?
-                                <button className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer'>Logout</button>
+                            {user ?
+                                <button className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer' onClick={() => {
+                                    dispatch(logOut())
+                                }}>Logout</button>
                                 :
-                                <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer' onClick={() => setmobileNav(false)}>Login / Register</Link>
+                                <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer '>Login / Register</Link>
                             }
+
 
                         </div>
                         <ul className='flex lg:gap-8 sm:gap-8 gap-5 w-full justify-center items-center  lg:flex-row flex-col'>
@@ -386,13 +401,13 @@ export default function Header() {
                     <div className='max-w-full lg:flex justify-between item-center  hidden ' id='header-mid-top'>
                         <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-8540064060 / jitendrasharma30990@gmail.com </Link>
                         {user ?
-                        <button onClick={()=>{
-                            dispatch(logOut())
-                        }}>Logout</button>
-                        :
-                        <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer '>Login / Register</Link>
+                            <button onClick={() => {
+                                dispatch(logOut())
+                            }}>Logout</button>
+                            :
+                            <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer '>Login / Register</Link>
                         }
-                        
+
                     </div>
                 </div>
                 <hr className='h-px bg-gray-200 border-0 lg:block  hidden' />
@@ -423,12 +438,12 @@ export default function Header() {
                                     <li>
                                         <div className={`bg-white border-1 h-[40px] p-3 border-gray-200 rounded-sm gap-3 flex items-center relative hover:text-[#c09578] cursor-pointer `} onClick={() => setcartItems(true)}>
                                             <FaCartShopping className=' border-gray-200' />
-                                            <span className='text-sm font-semibold lg:flex sm:flex items-center gap-1 border-l-1 pl-3 hidden'>Rs. 0.00
+                                            <span className='text-sm font-semibold lg:flex sm:flex items-center gap-1 border-l-1 pl-3 hidden'>Rs.{subtotal}
                                                 <FaAngleDown />
                                             </span>
 
                                             <div className='h-[20px] w-[20px] bg-[#c09578] rounded-[50%] absolute top-1/2 -translate-y-[50%] left-[-10px] flex justify-center items-center' id='cartItems'>
-                                                <p className='text-white text-sm font-semibold'>0</p>
+                                                <p className='text-white text-sm font-semibold'>{totalQuantity}</p>
                                             </div>
 
                                         </div>

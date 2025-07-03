@@ -9,6 +9,7 @@ import { userData } from '../slice/userSlice';
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { getAuth } from "firebase/auth";
 import { app } from '../config/firbaseConfig';
+import { fetchCart } from '../slice/cartSlice';
 
 export default function login() {
 
@@ -51,6 +52,7 @@ export default function login() {
 
                         if (res.data.status) {
                             dispatch(userData({ user: res.data.user, token: res.data.token }))
+                            dispatch(fetchCart());
                             router.push('/my-dashboard');
                         }
                     })
@@ -75,6 +77,7 @@ export default function login() {
             .then((res) => {
                 if (res.data.status) {
                     dispatch(userData({ user: res.data.user, token: res.data.token }))
+                    dispatch(fetchCart());
                     router.push('/my-dashboard');
                 }
                 else {
