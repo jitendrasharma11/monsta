@@ -11,7 +11,7 @@ export default function ViewProduct() {
     
     let [viewProduct, setviewProduct] = useState(null)
     let [productDetails, setproductDetails] = useState(false)
-
+    
     let apiBaseUrl = import.meta.env.VITE_APIBASEURL //http://localhost:8000/admin/
     let [productList, setProductList] = useState([])
     let [imagePath, setImagepath] = useState('')

@@ -11,19 +11,19 @@ import { CiMenuBurger } from "react-icons/ci";
 import { useDispatch, useSelector } from 'react-redux';
 import { logOut } from '../slice/userSlice';
 import { fetchCart } from '../slice/cartSlice';
+import { redirect } from 'next/navigation';
+
 
 export default function Header() {
+
+
 
     let user = useSelector((store) => store.login.user)
     let cart = useSelector((store) => store.cart.cart)
 
+    let [logoutStatu, setLogoutStatus] = useState(false)
 
     let dispatch = useDispatch()
-    useEffect(() => {
-        dispatch(fetchCart())
-    }, [])
-
-    console.log("cartDetails", cart)
 
 
     let [mobileNav, setmobileNav] = useState(false)
@@ -58,6 +58,15 @@ export default function Header() {
     }
 
 
+    useEffect(() => {
+        if (logoutStatu) {
+
+            console.log("Hello")
+
+
+            setLogoutStatus(false)
+        }
+    }, [logoutStatu])
 
     return (
         <>
@@ -73,10 +82,12 @@ export default function Header() {
                         </div>
 
                         <div className='max-w-full flex flex-col text-center item-center   ' id='header-mid-top'>
-                            <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-8540064060  </Link>
+                            <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7000 : +91-8540064060  </Link>
                             {user ?
-                                <button className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer' onClick={() => {
+                                <button onClick={() => {
                                     dispatch(logOut())
+                                    dispatch(fetchCart())
+                                    redirect("/login")
                                 }}>Logout</button>
                                 :
                                 <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer '>Login / Register</Link>
@@ -403,6 +414,8 @@ export default function Header() {
                         {user ?
                             <button onClick={() => {
                                 dispatch(logOut())
+                                dispatch(fetchCart())
+                                redirect("/login")
                             }}>Logout</button>
                             :
                             <Link href={'/login'} className='text-[12px] py-3 hover:text-[#c09578] hover:cursor-pointer '>Login / Register</Link>
