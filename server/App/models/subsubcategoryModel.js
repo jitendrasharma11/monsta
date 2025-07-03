@@ -6,7 +6,7 @@ let subsubcategorySchema= new mongoose.Schema({
         type:String,
         required:true,
         minLength:2,
-        maxLength:20,
+        maxLength:200,
        
     },                                                                            
     parentCategory: {type:mongoose.Schema.ObjectId, ref: "category"},

@@ -14,9 +14,14 @@ export default function Home() {
 
   let [sliderStaticPatch, setsliderStaticPatch] = useState("")
   let [sliderData, setsliderData,] = useState([])
-  let [productType,setproductType]=useState(1)
-  let [productImagePath,setProductImagePath]=useState('')
-  let [productData,setProductData]=useState([])
+  let [productType, setproductType] = useState(1)
+  let [productImagePath, setProductImagePath] = useState('')
+  let [productData, setProductData] = useState([])
+  let [bestSellingData, setBestSellingData] = useState([]);
+  let [bestSellingPath, setBestSellingPath] = useState("");
+  let [testimonials, setTestimonials] = useState([]);
+  let [testimonialsimagePath, settestimonialsImagePath] = useState('');
+
 
   let apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL;
 
@@ -27,7 +32,7 @@ export default function Home() {
 
         setsliderStaticPatch(finalRes.staticPath)
         setsliderData(finalRes.data)
-      
+
       })
   }
 
@@ -35,34 +40,67 @@ export default function Home() {
     slidView()
   }, [])
 
-let getProduct=()=>{
-    axios.get(`${apiBaseUrl}home/home-product`,{
-      params:{
+  let getProduct = () => {
+    axios.get(`${apiBaseUrl}home/home-product`, {
+      params: {
         productType
       }
     })
-    .then((res)=>res.data)
-    .then((finalRes)=>{
-       console.log(finalRes)
-       setProductImagePath(finalRes.staticPath)
-       setProductData(finalRes.data)
-    })
+      .then((res) => res.data)
+      .then((finalRes) => {
+        console.log(finalRes)
+        setProductImagePath(finalRes.staticPath)
+        setProductData(finalRes.data)
+      })
   }
 
 
-  useEffect(()=>{
+  useEffect(() => {
     getProduct()
-  },[productType])
+  }, [productType])
+
+
+
+
+  let getBestSellingProducts = () => {
+    axios.get(`${apiBaseUrl}home/getBestsellProduct`)
+      .then((res) => res.data)
+      .then((finalRes) => {
+        if (finalRes.status === 1) {
+          setBestSellingData(finalRes.data);
+          setBestSellingPath(finalRes.staticPath);
+          console.log("BestSelling", finalRes)
+        }
+      })
+      .catch((err) => console.log("Error: ", err));
+  };
+
+  useEffect(() => {
+    getBestSellingProducts();
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${apiBaseUrl}home/getTestimonials`)
+      .then((res) => {
+        if (res.data.status) {
+          setTestimonials(res.data.data);
+          settestimonialsImagePath(res.data.staticPath);
+        }
+      }).catch(err => {
+        console.error("Error fetching testimonials", err);
+      });
+  }, []);
+
 
   return (
     <>
       <section className="max-w-full overflow-hidden">
         <Banner sliderData={sliderData} sliderStaticPatch={sliderStaticPatch} />
         <ChairCollection />
-        <FeaturedProduct productImagePath={productImagePath} productData={productData} productType={productType} setproductType={setproductType}  />
+        <FeaturedProduct productImagePath={productImagePath} productData={productData} productType={productType} setproductType={setproductType} />
         <NewCollection />
-        <BestSelling />
-        <CustomerReview />
+        <BestSelling bestSellingData={bestSellingData} bestSellingPath={bestSellingPath} />
+        <CustomerReview testimonials={testimonials} testimonialsimagePath={testimonialsimagePath}/>
         <NewsLatter />
       </section>
     </>
