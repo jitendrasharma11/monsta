@@ -3,6 +3,7 @@ const { userauthRoutes } = require("./userAuthRoutes")
 const { homePageRoutes } = require("./homePageRoutes")
 const { cartRoutes } = require("./cartRoutes")
 const { orderRoute } = require("./orderRoutes")
+const { faqRoutes } = require("./faqRoutes")
 
 
 let webRoutes=express.Router()
@@ -12,6 +13,7 @@ webRoutes.use('/home',homePageRoutes) //http://localhost:8000/web/home/
 webRoutes.use('/cart',cartRoutes) //http://localhost:8000/web/cart/
 webRoutes.use('/order',orderRoute) //http://localhost:8000/web/order/
 webRoutes.use('/order',orderRoute) //http://localhost:8000/web/order/
+webRoutes.use('/faq',faqRoutes) //http://localhost:8000/web/order/
 
 
 

@@ -5,6 +5,7 @@ let mongoose = require("mongoose")
 const { adminRoutes } = require("./App/routes/admin/adminRoutes");
 const { adminModel } = require("./App/models/adminModel");
 const { webRoutes } = require("./App/routes/web/webRoutes");
+const { faqRoutes } = require("./App/routes/web/faqRoutes");
 let app = express();
 
 app.use(cors())
@@ -34,6 +35,8 @@ app.use("/uploads/testimonials",express.static("uploads/testimonials"))
 app.use("/uploads/companyProfile",express.static("uploads/companyProfile"))
 
 app.use("/uploads/slider",express.static("uploads/slider"))
+
+app.use("/api/faq", faqRoutes);
 
 mongoose.connect(`mongodb://127.0.0.1:27017/ecomfurniture`)
 

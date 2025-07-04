@@ -18,4 +18,4 @@ let faqSchema = new mongoose.Schema({
 
 let faqModel = mongoose.model("faq", faqSchema)
 
-module.exports = (faqModel)
+module.exports = {faqModel}
