@@ -29,10 +29,10 @@ export const cartSlice = createSlice({
 
   reducers: {
 
-    clearCart: (state) => {
-      state.cart = [];
-      state.imagePath = '';
-    },
+    // clearCart: (state) => {
+    //   state.cart = [];
+    //   state.imagePath = '';
+    // },
 
   },
 

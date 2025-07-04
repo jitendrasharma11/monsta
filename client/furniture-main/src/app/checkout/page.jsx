@@ -4,8 +4,11 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { FaAngleRight } from "react-icons/fa";
 import { useSelector } from 'react-redux';
+import { useRazorpay } from "react-razorpay";
 
 export default function Checkout() {
+
+    const { Razorpay } = useRazorpay();
     const [paymentMethod, setPaymentMethod] = useState("1"); // 1 = COD, 2 = Online
 
     let apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL
@@ -66,8 +69,39 @@ export default function Checkout() {
                 Authorization: `Bearer ${token}`
             }
         })
+            .then((res) => res.data)
             .then((res) => {
-                
+                if (res.paymentMethod == "1") { //COD
+                    //Thank you page
+                }
+                else {  //Online
+
+                    const RazorpayOrderOptions = {
+                        key: "rzp_test_WAft3lA6ly3OBc",
+                        amount: res.ordersRes.amount, // Amount in paise
+                        currency: "INR",
+                        name: "Monsta Furniture",
+                        description: "Test Transaction",
+                        order_id: res.ordersRes.id, // Generate order_id on server
+                        handler: (response) => {
+                            console.log(response);
+                            //razorpay_payment_id: 'pay_Qofh90kAeYHp7P', razorpay_order_id: 'order_QoffF9Y9PE9rB9', razorpay_signature: '37868029ac826841d8647b0f50cb27e97b7986b5e72cf8f2f4d22db09d1dcce1'}
+
+                        },
+                        prefill: {
+                            name: shippingAddress.billingName || shippingAddress.name,
+                            email: shippingAddress.billingEmail,
+                            contact: shippingAddress.billingMobile || shippingAddress.mobile,
+                        },
+                        theme: {
+                            color: "#F37254",
+                        },
+                    };
+
+                    const razorpayInstance = new Razorpay(RazorpayOrderOptions);
+                    razorpayInstance.open();
+                    console.log(res.ordersRes)
+                }
             })
 
 

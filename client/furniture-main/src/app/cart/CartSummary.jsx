@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
@@ -56,9 +57,11 @@ export default function CartSummary() {
                                 <span>Rs. {total}</span>
                             </div>
                             <div className="pt-4 flex justify-end">
+                                <Link href="/checkout">
                                 <button className="bg-black cursor-pointer text-white px-4 py-2 font-semibold hover:bg-[#C09578] transition">
                                     Proceed To Checkout
                                 </button>
+                                </Link>
                             </div>
                         </div>
                     </div>

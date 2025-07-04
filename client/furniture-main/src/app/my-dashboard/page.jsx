@@ -6,7 +6,16 @@ import { Country } from '../data/Country';
 import { useSelector } from 'react-redux';
 import { store } from '../store/store';
 import axios from 'axios';
+import { useDispatch } from "react-redux";
+import { logOut } from '../slice/userSlice';
+import { fetchCart } from "../slice/cartSlice";
+import { useRouter } from "next/navigation";
+
+
 export default function Dashboard() {
+
+    let dispatch = useDispatch();
+    let router = useRouter();
 
     let token = useSelector((store) => store.login.token)
 
@@ -153,7 +162,17 @@ export default function Dashboard() {
 
                             <button className={`w-full  py-3 rounded-sm text-sm font-bold cursor-pointer text-left px-3 text-white hover:bg-[#C09578] my-1 ${dashBoardButton == 5 ? 'bg-[#C09578]' : 'bg-[#212121]'}`} onClick={() => setdashBoardButton(5)}>Change Password</button>
 
-                            <button className={`w-full  py-3 rounded-sm text-sm font-bold cursor-pointer text-left px-3 text-white hover:bg-[#C09578] my-1 ${dashBoardButton == 6 ? 'bg-[#C09578]' : 'bg-[#212121]'}`} onClick={() => setdashBoardButton(6)}>Logout</button>
+                            <button
+                                className={`w-full py-3 rounded-sm text-sm font-bold cursor-pointer text-left px-3 text-white hover:bg-[#C09578] my-1 ${dashBoardButton == 6 ? 'bg-[#C09578]' : 'bg-[#212121]'}`}
+                                onClick={() => {
+                                    setdashBoardButton(6);
+                                    dispatch(logOut());
+                                    dispatch(fetchCart());
+                                    router.push("/login"); 
+                                }}
+                            >
+                                Logout
+                            </button>
                         </div>
 
 
@@ -371,7 +390,7 @@ export default function Dashboard() {
                                             type="tel"
                                             name="userPhone"
                                             defaultValue={userData.userPhone}
-                                            
+
 
                                             className='w-full p-1.5 border-1 border-gray-200 rounded-sm my-2'
                                         />

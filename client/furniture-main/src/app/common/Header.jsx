@@ -21,7 +21,7 @@ export default function Header() {
     let user = useSelector((store) => store.login.user)
     let cart = useSelector((store) => store.cart.cart)
 
-    let [logoutStatu, setLogoutStatus] = useState(false)
+    // let [logoutStatu, setLogoutStatus] = useState(false)
 
     let dispatch = useDispatch()
 
@@ -59,14 +59,20 @@ export default function Header() {
 
 
     useEffect(() => {
-        if (logoutStatu) {
-
-            console.log("Hello")
-
-
-            setLogoutStatus(false)
+        if (user) {
+            dispatch(fetchCart());
         }
-    }, [logoutStatu])
+    }, [user]);
+
+    // useEffect(() => {
+    //     if (logoutStatu) {
+
+    //         console.log("Hello")
+
+
+    //         setLogoutStatus(false)
+    //     }
+    // }, [logoutStatu])
 
     return (
         <>
@@ -82,7 +88,7 @@ export default function Header() {
                         </div>
 
                         <div className='max-w-full flex flex-col text-center item-center   ' id='header-mid-top'>
-                            <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7000 : +91-8540064060  </Link>
+                            <Link href={'/'} className='text-[12px] py-3 '>Contact us 24/7 : +91-8540064060  </Link>
                             {user ?
                                 <button onClick={() => {
                                     dispatch(logOut())
