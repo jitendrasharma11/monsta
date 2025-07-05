@@ -6,8 +6,11 @@ import { FaAngleRight } from "react-icons/fa";
 import { useDispatch, useSelector } from 'react-redux';
 import { useRazorpay } from "react-razorpay";
 import { fetchCart } from '../slice/cartSlice';
+import { useRouter } from 'next/navigation';
 
 export default function Checkout() {
+
+    const router = useRouter();
 
     const dispatch = useDispatch();
     const { Razorpay } = useRazorpay();
@@ -68,6 +71,7 @@ export default function Checkout() {
             if (res.paymentMethod === "1") {
                 dispatch(fetchCart());
                 // You can redirect to thank you page if needed
+                router.push("/thank-you");
             } else {
                 const RazorpayOrderOptions = {
                     key: "rzp_test_WAft3lA6ly3OBc",
@@ -90,6 +94,7 @@ export default function Checkout() {
                         .then((res) => res.data)
                         .then((res) => {
                             dispatch(fetchCart());
+                            router.push("/thank-you");
                             console.log("Payment verified:", res);
                             // You can redirect to thank you page if needed
                         });
