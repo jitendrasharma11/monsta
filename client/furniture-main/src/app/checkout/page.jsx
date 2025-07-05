@@ -3,16 +3,19 @@ import axios from 'axios';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { FaAngleRight } from "react-icons/fa";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRazorpay } from "react-razorpay";
+import { fetchCart } from '../slice/cartSlice';
 
 export default function Checkout() {
 
+    const dispatch = useDispatch();
     const { Razorpay } = useRazorpay();
     const [paymentMethod, setPaymentMethod] = useState("1"); // 1 = COD, 2 = Online
 
-    let apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL
-    let token = useSelector((store) => store.login.token)
+    const apiBaseUrl = process.env.NEXT_PUBLIC_APIBASEURL;
+    const token = useSelector((store) => store.login.token);
+    const userId = useSelector((store) => store.login.user?._id); // ✅ Get userId from store
 
     const [shippingAddress, setShippingAddress] = useState({
         name: "",
@@ -40,21 +43,12 @@ export default function Checkout() {
         event.preventDefault();
 
         const orderItems = cart.map((item) => ({
-
             productName: item.productName,
             productPrice: item.productPrice,
             productQuantity: item.productQuantity,
             colorName: item.color.colorName,
             productImage: item.productImage
-
         }));
-
-        console.log("Cart:", orderItems);
-        console.log("Total Qty:", orderQty);
-        console.log("Cart Total:", orderItems);
-        console.log("Payment Method:", paymentMethod);
-        console.log("Shipping Address:", shippingAddress);
-
 
         let obj = {
             paymentMethod,
@@ -62,50 +56,58 @@ export default function Checkout() {
             orderItems,
             orderAmount,
             orderQty
-        }
+        };
 
         axios.post(`${apiBaseUrl}order/order-save`, obj, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         })
-            .then((res) => res.data)
-            .then((res) => {
-                if (res.paymentMethod == "1") { //COD
-                    //Thank you page
-                }
-                else {  //Online
+        .then((res) => res.data)
+        .then((res) => {
+            if (res.paymentMethod === "1") {
+                dispatch(fetchCart());
+                // You can redirect to thank you page if needed
+            } else {
+                const RazorpayOrderOptions = {
+                    key: "rzp_test_WAft3lA6ly3OBc",
+                    amount: res.ordersRes.amount,
+                    currency: "INR",
+                    name: "Monsta Furniture",
+                    description: "Online Payment",
+                    order_id: res.ordersRes.id,
+                    handler: (response) => {
+                        axios.post(`${apiBaseUrl}order/verify-order`, {
+                            ...response,
+                            userId,
+                            billingEmail: shippingAddress.billingEmail, // ✅ Important fix
+                            orderAmount
+                        }, {
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            }
+                        })
+                        .then((res) => res.data)
+                        .then((res) => {
+                            dispatch(fetchCart());
+                            console.log("Payment verified:", res);
+                            // You can redirect to thank you page if needed
+                        });
+                    },
+                    prefill: {
+                        name: shippingAddress.billingName || shippingAddress.name,
+                        email: shippingAddress.billingEmail,
+                        contact: shippingAddress.billingMobile || shippingAddress.mobile,
+                    },
+                    theme: {
+                        color: "#F37254",
+                    },
+                };
 
-                    const RazorpayOrderOptions = {
-                        key: "rzp_test_WAft3lA6ly3OBc",
-                        amount: res.ordersRes.amount, // Amount in paise
-                        currency: "INR",
-                        name: "Monsta Furniture",
-                        description: "Test Transaction",
-                        order_id: res.ordersRes.id, // Generate order_id on server
-                        handler: (response) => {
-                            console.log(response);
-                            //razorpay_payment_id: 'pay_Qofh90kAeYHp7P', razorpay_order_id: 'order_QoffF9Y9PE9rB9', razorpay_signature: '37868029ac826841d8647b0f50cb27e97b7986b5e72cf8f2f4d22db09d1dcce1'}
-
-                        },
-                        prefill: {
-                            name: shippingAddress.billingName || shippingAddress.name,
-                            email: shippingAddress.billingEmail,
-                            contact: shippingAddress.billingMobile || shippingAddress.mobile,
-                        },
-                        theme: {
-                            color: "#F37254",
-                        },
-                    };
-
-                    const razorpayInstance = new Razorpay(RazorpayOrderOptions);
-                    razorpayInstance.open();
-                    console.log(res.ordersRes)
-                }
-            })
-
-
-
+                const razorpayInstance = new Razorpay(RazorpayOrderOptions);
+                razorpayInstance.open();
+            }
+        });
     };
 
     return (
@@ -138,38 +140,38 @@ export default function Checkout() {
                                         <label className='text-sm font-semibold'>Name*</label>
                                         <input type='text' name='name' value={shippingAddress.name} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                         <label className='text-sm font-semibold'>Billing Name*</label>
-                                        <input type='text' name='billingName' value={shippingAddress.billingName} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
+                                        <input required type='text' name='billingName' value={shippingAddress.billingName} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                     </div>
                                     <div>
                                         <label className='text-sm font-semibold'>Mobile Number*</label>
-                                        <input type='tel' name='mobile' value={shippingAddress.mobile} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
+                                        <input required type='tel' name='mobile' value={shippingAddress.mobile} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                         <label className='text-sm font-semibold'>Billing Email*</label>
-                                        <input type='email' name='billingEmail' value={shippingAddress.billingEmail} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
+                                        <input required type='email' name='billingEmail' value={shippingAddress.billingEmail} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                     </div>
                                 </div>
 
                                 <label className='text-sm font-semibold'>Billing Mobile Number*</label>
-                                <input type='tel' name='billingMobile' value={shippingAddress.billingMobile} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
+                                <input required type='tel' name='billingMobile' value={shippingAddress.billingMobile} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
 
                                 <label className='text-sm font-semibold'>Billing Address*</label>
-                                <input type='text' name='billingAddress' value={shippingAddress.billingAddress} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
+                                <input required type='text' name='billingAddress' value={shippingAddress.billingAddress} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
 
                                 <label className='text-sm font-semibold mt-2'>Country</label>
-                                <input type='text' value='India' disabled className='w-full p-2 border border-gray-300 rounded-sm my-2 bg-gray-100 text-gray-500' />
+                                <input required type='text' value='India' disabled className='w-full p-2 border border-gray-300 rounded-sm my-2 bg-gray-100 text-gray-500' />
 
                                 <div className='grid sm:grid-cols-2 gap-5 mt-4'>
                                     <div>
                                         <label className='text-sm font-semibold'>State*</label>
-                                        <input type='text' name='state' value={shippingAddress.state} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
+                                        <input required type='text' name='state' value={shippingAddress.state} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                     </div>
                                     <div>
                                         <label className='text-sm font-semibold'>City*</label>
-                                        <input type='text' name='city' value={shippingAddress.city} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
+                                        <input required type='text' name='city' value={shippingAddress.city} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2' />
                                     </div>
                                 </div>
 
                                 <label className='text-sm font-semibold'>Order Notes</label>
-                                <textarea name='orderNotes' value={shippingAddress.orderNotes} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2 h-[100px]' placeholder='Notes about your order...' />
+                                <textarea  name='orderNotes' value={shippingAddress.orderNotes} onChange={handleInputChange} className='w-full p-2 border border-gray-300 rounded-sm my-2 h-[100px]' placeholder='Notes about your order...' />
                             </div>
                         </div>
 
